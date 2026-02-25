@@ -236,11 +236,25 @@ export async function POST(req: Request) {
                 const drawImageStr = async (base64Str: string | null | undefined, title: string, startY: number) => {
                     if (!base64Str) return startY;
                     try {
-                        const cleanBase64 = base64Str.replace(/^data:image\/\w+;base64,/, "");
+                        let cleanBase64 = "";
+                        let isPng = false;
+
+                        if (base64Str.startsWith("/images/")) {
+                            const fs = require('fs');
+                            const path = require('path');
+                            const filePath = path.join(process.cwd(), "public", base64Str);
+                            const fileBuffer = fs.readFileSync(filePath);
+                            cleanBase64 = fileBuffer.toString("base64");
+                            isPng = base64Str.endsWith(".png");
+                        } else {
+                            cleanBase64 = base64Str.replace(/^data:image\/\w+;base64,/, "");
+                            isPng = base64Str.includes("image/png");
+                        }
+
                         const imageBytes = Uint8Array.from(atob(cleanBase64), c => c.charCodeAt(0));
                         let img;
                         // Best effort to embed based on apparent format
-                        if (base64Str.includes("image/png")) {
+                        if (isPng) {
                             img = await pdfDoc.embedPng(imageBytes);
                         } else {
                             img = await pdfDoc.embedJpg(imageBytes);
