@@ -36,7 +36,7 @@ const THEMES: Record<string, { primary: [number, number, number], secondary: [nu
 
 export async function POST(req: Request) {
     try {
-        const { dp, theme }: { dp: DeclarationPrealable, theme: string } = await req.json();
+        const { dp, theme, orientation = "portrait" }: { dp: DeclarationPrealable, theme: string, orientation?: string } = await req.json();
         const activeTheme = THEMES[theme] || THEMES["classique"];
 
         // Initialize document
@@ -45,15 +45,21 @@ export async function POST(req: Request) {
         const fontBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
 
         const margin = 50;
-        const pageWidth = 595.28; // A4 pt
-        const pageHeight = 841.89; // A4 pt
+        let pageWidth = 595.28; // A4 pt
+        let pageHeight = 841.89; // A4 pt
+
+        if (orientation === "landscape") {
+            pageWidth = 841.89;
+            pageHeight = 595.28;
+        }
+
         let page = pdfDoc.addPage([pageWidth, pageHeight]);
         let y = pageHeight - margin;
 
         // Helper functions
         const drawText = (text: string, font: any, size: number, color: [number, number, number], x: number, lineSpacing: number = 0) => {
             // Very basic text wrapping
-            const maxLineWidth = pageWidth - margin * 2;
+            const maxLineWidth = pageWidth - margin - x;
             const words = (text || "—").split(' ');
             let line = '';
 
@@ -228,7 +234,7 @@ export async function POST(req: Request) {
                 drawSectionHeader(`6 - REPORTAGE PHOTOGRAPHIQUE - ${ps.label.toUpperCase()}`);
 
                 const drawImageStr = async (base64Str: string | null | undefined, title: string, startY: number) => {
-                    if (!base64Str) return;
+                    if (!base64Str) return startY;
                     try {
                         const cleanBase64 = base64Str.replace(/^data:image\/\w+;base64,/, "");
                         const imageBytes = Uint8Array.from(atob(cleanBase64), c => c.charCodeAt(0));
@@ -240,18 +246,34 @@ export async function POST(req: Request) {
                             img = await pdfDoc.embedJpg(imageBytes);
                         }
 
-                        const imgWidth = pageWidth - margin * 2;
-                        const imgHeight = (img.height / img.width) * imgWidth;
+                        // Check if we need a new page for the image
+                        if (startY < margin + 180) {
+                            page = pdfDoc.addPage([pageWidth, pageHeight]);
+                            drawHeader();
+                            startY = y - 20;
+                        }
+
+                        let imgWidth = pageWidth - margin * 2;
+                        let imgHeight = (img.height / img.width) * imgWidth;
+
+                        const maxImgHeight = startY - margin - 40; // available space
+                        if (imgHeight > maxImgHeight) {
+                            imgHeight = maxImgHeight;
+                            imgWidth = (img.width / img.height) * imgHeight;
+                        }
+
+                        // Center the image horizontally if it was scaled down
+                        const imgX = margin + ((pageWidth - margin * 2) - imgWidth) / 2;
 
                         page.drawText(title, { x: margin, y: startY, size: 12, font: fontBold, color: rgb(...activeTheme.text_title) });
                         const rectY = startY - imgHeight - 10;
 
                         // Draw image with border
                         page.drawRectangle({
-                            x: margin - 2, y: rectY - 2, width: imgWidth + 4, height: imgHeight + 4,
+                            x: imgX - 2, y: rectY - 2, width: imgWidth + 4, height: imgHeight + 4,
                             color: rgb(...activeTheme.border)
                         });
-                        page.drawImage(img, { x: margin, y: rectY, width: imgWidth, height: imgHeight });
+                        page.drawImage(img, { x: imgX, y: rectY, width: imgWidth, height: imgHeight });
 
                         return rectY - 30; // Return next Y position
                     } catch (e) {
@@ -262,9 +284,12 @@ export async function POST(req: Request) {
                 };
 
                 y -= 10;
-                let nextY = await drawImageStr(ps.base64_avant, "ÉTAT EXISTANT (Avant)", y);
-                if (nextY) {
-                    await drawImageStr(ps.base64_apres, "ÉTAT PROJETÉ (Après)", nextY);
+                let currentY = y;
+                if (ps.base64_avant) {
+                    currentY = await drawImageStr(ps.base64_avant, "ÉTAT EXISTANT (Avant)", currentY);
+                }
+                if (ps.base64_apres) {
+                    await drawImageStr(ps.base64_apres, "ÉTAT PROJETÉ (Après)", currentY);
                 }
             }
         }

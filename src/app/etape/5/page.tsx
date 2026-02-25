@@ -9,6 +9,7 @@ export default function Step5() {
     const router = useRouter();
     const { dp } = useDP();
     const [theme, setTheme] = useState("classique");
+    const [orientation, setOrientation] = useState("portrait");
     const [downloading, setDownloading] = useState(false);
 
     const handleDownload = async () => {
@@ -17,7 +18,7 @@ export default function Step5() {
             const res = await fetch("/api/telecharger-pdf", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ dp, theme }),
+                body: JSON.stringify({ dp, theme, orientation }),
             });
 
             if (!res.ok) throw new Error("Erreur de génération du PDF");
@@ -145,7 +146,23 @@ export default function Step5() {
                     <div className="export-card">
                         <div className="export-icon">📥</div>
                         <h3>Générer le dossier PDF</h3>
-                        <p>Choisissez le thème visuel pour votre document officiel :</p>
+                        <p>Choisissez l'orientation du document :</p>
+                        <div className="theme-selector" style={{ marginBottom: '20px' }}>
+                            <label className="theme-option">
+                                <input type="radio" name="pdf_orientation" value="portrait" checked={orientation === "portrait"} onChange={(e) => setOrientation(e.target.value)} />
+                                <div className="theme-card">
+                                    <span className="theme-name">Vertical (Portrait)</span>
+                                </div>
+                            </label>
+                            <label className="theme-option">
+                                <input type="radio" name="pdf_orientation" value="landscape" checked={orientation === "landscape"} onChange={(e) => setOrientation(e.target.value)} />
+                                <div className="theme-card">
+                                    <span className="theme-name">Horizontal (Paysage)</span>
+                                </div>
+                            </label>
+                        </div>
+
+                        <p>Choisissez le thème visuel pour votre document :</p>
 
                         <div className="theme-selector">
                             <label className="theme-option">
@@ -155,7 +172,7 @@ export default function Step5() {
                                         <span className="tc" style={{ background: "#000091" }}></span>
                                         <span className="tc" style={{ background: "#e1000f" }}></span>
                                     </div>
-                                    <span className="theme-name">Classique (Officiel)</span>
+                                    <span className="theme-name">Classique</span>
                                 </div>
                             </label>
 
