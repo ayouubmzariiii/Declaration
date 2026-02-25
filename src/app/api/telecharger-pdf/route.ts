@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+﻿import { NextResponse } from "next/server";
 import { PDFDocument, rgb, StandardFonts } from "pdf-lib";
 import { DeclarationPrealable } from "@/lib/models";
 
@@ -60,7 +60,7 @@ export async function POST(req: Request) {
         const drawText = (text: string, font: any, size: number, color: [number, number, number], x: number, lineSpacing: number = 0) => {
             // Very basic text wrapping
             const maxLineWidth = pageWidth - margin - x;
-            const words = (text || "—").split(' ');
+            const words = (text || "â€”").split(' ');
             let line = '';
 
             for (const word of words) {
@@ -100,7 +100,7 @@ export async function POST(req: Request) {
                     color: rgb(...activeTheme.secondary)
                 });
             }
-            page.drawText("CERFA n° 13703*09", { x: margin, y: pageHeight - 40, size: 10, font: fontRegular, color: rgb(...activeTheme.primary) });
+            page.drawText("CERFA nÂ° 13703*09", { x: margin, y: pageHeight - 40, size: 10, font: fontRegular, color: rgb(...activeTheme.primary) });
             page.drawText(`Date: ${dp.date_creation}`, { x: pageWidth - margin - 80, y: pageHeight - 40, size: 10, font: fontRegular, color: rgb(...activeTheme.text_body) });
             y = pageHeight - 80;
         };
@@ -132,65 +132,65 @@ export async function POST(req: Request) {
         drawHeader();
 
         // Titre
-        const titleText = "Déclaration Préalable de Travaux";
+        const titleText = "DÃ©claration PrÃ©alable de Travaux";
         const titleWidth = fontBold.widthOfTextAtSize(titleText, 22);
         page.drawText(titleText, { x: (pageWidth - titleWidth) / 2, y, size: 22, font: fontBold, color: rgb(...activeTheme.primary) });
         y -= 30;
 
-        const refText = `Référence du dossier : ${dp.reference}`;
+        const refText = `RÃ©fÃ©rence du dossier : ${dp.reference}`;
         const refWidth = fontRegular.widthOfTextAtSize(refText, 12);
         page.drawText(refText, { x: (pageWidth - refWidth) / 2, y, size: 12, font: fontRegular, color: rgb(...activeTheme.text_body) });
         y -= 40;
 
         // 1. Demandeur
-        drawSectionHeader("1 - IDENTITÉ DU DEMANDEUR");
-        drawField("Civilité / Nom :", `${dp.demandeur.civilite} ${dp.demandeur.prenom} ${dp.demandeur.nom}`);
-        drawField("Qualité :", dp.demandeur.qualite);
+        drawSectionHeader("1 - IDENTITÃ‰ DU DEMANDEUR");
+        drawField("CivilitÃ© / Nom :", `${dp.demandeur.civilite} ${dp.demandeur.prenom} ${dp.demandeur.nom}`);
+        drawField("QualitÃ© :", dp.demandeur.qualite);
         drawField("Adresse :", dp.demandeur.adresse);
         drawField("Code postal / Ville :", `${dp.demandeur.code_postal} ${dp.demandeur.ville}`);
         drawField("Email :", dp.demandeur.email);
-        drawField("Téléphone :", dp.demandeur.telephone);
+        drawField("TÃ©lÃ©phone :", dp.demandeur.telephone);
 
         // 2. Terrain
         drawSectionHeader("2 - LOCALISATION DU TERRAIN");
         drawField("Adresse :", dp.terrain.adresse);
         drawField("Code postal / Ville :", `${dp.terrain.code_postal} ${dp.terrain.commune}`);
-        drawField("Parcelle cadastrale :", `Section ${dp.terrain.section_cadastrale} N° ${dp.terrain.numero_parcelle}`);
-        drawField("Superficie totale :", `${dp.terrain.superficie_terrain} m²`);
-        drawField("Règlement (Zone) :", dp.terrain.zone_plu);
-        drawField("Spécificités :", `${dp.terrain.est_lotissement ? 'En lotissement. ' : ''}${dp.terrain.est_zone_protegee ? 'En secteur protégé.' : ''}`.trim() || 'Aucune');
+        drawField("Parcelle cadastrale :", `Section ${dp.terrain.section_cadastrale} NÂ° ${dp.terrain.numero_parcelle}`);
+        drawField("Superficie totale :", `${dp.terrain.superficie_terrain} mÂ²`);
+        drawField("RÃ¨glement (Zone) :", dp.terrain.zone_plu);
+        drawField("SpÃ©cificitÃ©s :", `${dp.terrain.est_lotissement ? 'En lotissement. ' : ''}${dp.terrain.est_zone_protegee ? 'En secteur protÃ©gÃ©.' : ''}`.trim() || 'Aucune');
 
         // 3. Travaux
         drawSectionHeader("3 - NATURE DES TRAVAUX");
         drawField("Type de travaux :", dp.travaux.type_travaux);
         drawField("Description courte :", dp.travaux.description_courte);
-        drawField("Surface existante :", `${dp.travaux.surface_plancher_existante} m² (Plancher) / ${dp.travaux.emprise_au_sol_existante} m² (Emprise)`);
-        drawField("Surface modifiée :", `Créée : ${dp.travaux.surface_plancher_creee} m² (Plancher) / ${dp.travaux.emprise_au_sol_creee} m² (Emprise)`);
-        drawField("Hauteur bâtiment :", `Existante : ${dp.travaux.hauteur_existante} m / Projetée : ${dp.travaux.hauteur_projetee} m`);
+        drawField("Surface existante :", `${dp.travaux.surface_plancher_existante} mÂ² (Plancher) / ${dp.travaux.emprise_au_sol_existante} mÂ² (Emprise)`);
+        drawField("Surface modifiÃ©e :", `CrÃ©Ã©e : ${dp.travaux.surface_plancher_creee} mÂ² (Plancher) / ${dp.travaux.emprise_au_sol_creee} mÂ² (Emprise)`);
+        drawField("Hauteur bÃ¢timent :", `Existante : ${dp.travaux.hauteur_existante} m / ProjetÃ©e : ${dp.travaux.hauteur_projetee} m`);
 
-        // --- PAGE 2 : Aspect Extérieur & Notice ---
+        // --- PAGE 2 : Aspect ExtÃ©rieur & Notice ---
         page = pdfDoc.addPage([pageWidth, pageHeight]);
         drawHeader();
 
-        drawSectionHeader("4 - ASPECT EXTÉRIEUR DES CONSTRUCTIONS");
+        drawSectionHeader("4 - ASPECT EXTÃ‰RIEUR DES CONSTRUCTIONS");
 
         page.drawText("Ouvertures et Menuiseries", { x: margin, y, size: 12, font: fontBold, color: rgb(...activeTheme.text_title) });
         y -= 20;
         drawField("Nombre existant :", dp.aspect_exterieur.nombre_ouvertures_existantes);
-        drawField("Nombre projeté :", dp.aspect_exterieur.nombre_ouvertures_projetees);
+        drawField("Nombre projetÃ© :", dp.aspect_exterieur.nombre_ouvertures_projetees);
         drawField("Types existants :", dp.aspect_exterieur.menuiseries_existantes);
-        drawField("Types projetés :", dp.aspect_exterieur.menuiseries_projetees);
+        drawField("Types projetÃ©s :", dp.aspect_exterieur.menuiseries_projetees);
 
-        page.drawText("Façades et Toitures", { x: margin, y, size: 12, font: fontBold, color: rgb(...activeTheme.text_title) });
+        page.drawText("FaÃ§ades et Toitures", { x: margin, y, size: 12, font: fontBold, color: rgb(...activeTheme.text_title) });
         y -= 20;
-        drawField("Façade existante :", dp.aspect_exterieur.facade_materiaux_existants);
-        drawField("Façade projetée :", dp.aspect_exterieur.facade_materiaux_projetes);
+        drawField("FaÃ§ade existante :", dp.aspect_exterieur.facade_materiaux_existants);
+        drawField("FaÃ§ade projetÃ©e :", dp.aspect_exterieur.facade_materiaux_projetes);
         drawField("Toiture existante :", dp.aspect_exterieur.toiture_materiaux_existants);
-        drawField("Toiture projetée :", dp.aspect_exterieur.toiture_materiaux_projetes);
+        drawField("Toiture projetÃ©e :", dp.aspect_exterieur.toiture_materiaux_projetes);
 
         page.drawText("Palette de couleurs", { x: margin, y, size: 12, font: fontBold, color: rgb(...activeTheme.text_title) });
         y -= 20;
-        drawField("Couleur Façade :", dp.aspect_exterieur.couleur_facade);
+        drawField("Couleur FaÃ§ade :", dp.aspect_exterieur.couleur_facade);
         drawField("Couleur Menuiseries :", dp.aspect_exterieur.couleur_menuiseries);
         drawField("Couleur Toiture :", dp.aspect_exterieur.couleur_toiture);
 
@@ -207,23 +207,23 @@ export async function POST(req: Request) {
             y -= 10;
         };
 
-        drawParagraph("5.1 - État initial du terrain et de la construction", dp.notice.etat_initial);
+        drawParagraph("5.1 - Ã‰tat initial du terrain et de la construction", dp.notice.etat_initial);
         drawParagraph("5.2 - Description du projet", dp.notice.etat_projete);
-        drawParagraph("5.3 - Analyse technique estimée", dp.notice.modifications_detaillees);
+        drawParagraph("5.3 - Analyse technique estimÃ©e", dp.notice.modifications_detaillees);
         drawField("Surface plancher :", dp.notice.modification_surface_plancher);
         drawField("Emprise au sol :", dp.notice.modification_emprise_au_sol);
         drawField("Volume :", dp.notice.modification_volume);
         drawField("Hauteur existante :", dp.notice.hauteur_estimee_existante);
-        drawField("Hauteur projetée :", dp.notice.hauteur_estimee_projete);
+        drawField("Hauteur projetÃ©e :", dp.notice.hauteur_estimee_projete);
 
         y -= 10;
-        drawParagraph("5.4 - Analyse réglementaire", "");
-        drawParagraph(`Cohérence architecturale (Zone ${dp.terrain.zone_plu}) :`, dp.notice.coherence_architecturale);
-        drawParagraph("Risques réglementaires potentiels :", dp.notice.risques_reglementaires_potentiels);
+        drawParagraph("5.4 - Analyse rÃ©glementaire", "");
+        drawParagraph(`CohÃ©rence architecturale (Zone ${dp.terrain.zone_plu}) :`, dp.notice.coherence_architecturale);
+        drawParagraph("Risques rÃ©glementaires potentiels :", dp.notice.risques_reglementaires_potentiels);
         drawParagraph(`Niveau de confiance IA :`, dp.notice.niveau_confiance_global);
 
         drawParagraph("5.5 - Justification du projet", dp.notice.justification);
-        drawParagraph("5.6 - Insertion paysagère", dp.notice.insertion_paysagere);
+        drawParagraph("5.6 - Insertion paysagÃ¨re", dp.notice.insertion_paysagere);
         drawParagraph("5.7 - Impact environnemental", dp.notice.impact_environnemental);
 
         // --- PAGE 3+ : Photos ---
@@ -233,32 +233,55 @@ export async function POST(req: Request) {
                 drawHeader();
                 drawSectionHeader(`6 - REPORTAGE PHOTOGRAPHIQUE - ${ps.label.toUpperCase()}`);
 
-                const drawImageStr = async (base64Str: string | null | undefined, title: string, startY: number) => {
-                    if (!base64Str) return startY;
+                const loadImg = async (base64Str: string) => {
+                    let cleanBase64 = "";
+                    let isPng = false;
+
+                    if (base64Str.startsWith("/images/")) {
+                        const fs = require('fs');
+                        const path = require('path');
+                        const filePath = path.join(process.cwd(), "public", base64Str);
+                        const fileBuffer = fs.readFileSync(filePath);
+                        cleanBase64 = fileBuffer.toString("base64");
+                        isPng = base64Str.endsWith(".png");
+                    } else {
+                        cleanBase64 = base64Str.replace(/^data:image\/\w+;base64,/, "");
+                        isPng = base64Str.includes("image/png");
+                    }
+
+                    const imageBytes = Uint8Array.from(atob(cleanBase64), c => c.charCodeAt(0));
+                    if (isPng) return await pdfDoc.embedPng(imageBytes);
+                    return await pdfDoc.embedJpg(imageBytes);
+                };
+
+                const drawTextWrapped = (text: string, font: any, size: number, color: any, x: number, y: number, maxWidth: number) => {
+                    const words = text.split(' ');
+                    let currentLine = '';
+                    let currentY = y;
+                    for (const word of words) {
+                        const testLine = currentLine + word + ' ';
+                        const metrics = font.widthOfTextAtSize(testLine, size);
+                        if (metrics > maxWidth && currentLine !== '') {
+                            page.drawText(currentLine, { x, y: currentY, size, font, color: rgb(...color) });
+                            currentLine = word + ' ';
+                            currentY -= (size + 4);
+                        } else {
+                            currentLine = testLine;
+                        }
+                    }
+                    if (currentLine !== '') {
+                        page.drawText(currentLine, { x, y: currentY, size, font, color: rgb(...color) });
+                        currentY -= (size + 4);
+                    }
+                    return currentY;
+                };
+
+                const drawImagePair = async (ps: any, startY: number) => {
                     try {
-                        let cleanBase64 = "";
-                        let isPng = false;
+                        const imgAvant = ps.base64_avant ? await loadImg(ps.base64_avant) : null;
+                        const imgApres = ps.base64_apres ? await loadImg(ps.base64_apres) : null;
 
-                        if (base64Str.startsWith("/images/")) {
-                            const fs = require('fs');
-                            const path = require('path');
-                            const filePath = path.join(process.cwd(), "public", base64Str);
-                            const fileBuffer = fs.readFileSync(filePath);
-                            cleanBase64 = fileBuffer.toString("base64");
-                            isPng = base64Str.endsWith(".png");
-                        } else {
-                            cleanBase64 = base64Str.replace(/^data:image\/\w+;base64,/, "");
-                            isPng = base64Str.includes("image/png");
-                        }
-
-                        const imageBytes = Uint8Array.from(atob(cleanBase64), c => c.charCodeAt(0));
-                        let img;
-                        // Best effort to embed based on apparent format
-                        if (isPng) {
-                            img = await pdfDoc.embedPng(imageBytes);
-                        } else {
-                            img = await pdfDoc.embedJpg(imageBytes);
-                        }
+                        if (!imgAvant && !imgApres) return startY;
 
                         // Check if we need a new page for the image
                         if (startY < margin + 180) {
@@ -267,44 +290,93 @@ export async function POST(req: Request) {
                             startY = y - 20;
                         }
 
-                        let imgWidth = pageWidth - margin * 2;
-                        let imgHeight = (img.height / img.width) * imgWidth;
+                        const availableWidth = pageWidth - margin * 2;
+                        const spacing = 20;
+                        let maxRectY = startY;
 
-                        const maxImgHeight = startY - margin - 40; // available space
-                        if (imgHeight > maxImgHeight) {
-                            imgHeight = maxImgHeight;
-                            imgWidth = (img.width / img.height) * imgHeight;
+                        if (imgAvant && imgApres) {
+                            const halfWidth = (availableWidth - spacing) / 2;
+                            let imgWidthAvant = halfWidth;
+                            let imgHeightAvant = (imgAvant.height / imgAvant.width) * imgWidthAvant;
+                            let imgWidthApres = halfWidth;
+                            let imgHeightApres = (imgApres.height / imgApres.width) * imgWidthApres;
+                            
+                            const maxImgHeight = startY - margin - 80;
+                            if (imgHeightAvant > maxImgHeight) {
+                                imgHeightAvant = maxImgHeight;
+                                imgWidthAvant = (imgAvant.width / imgAvant.height) * imgHeightAvant;
+                            }
+                            if (imgHeightApres > maxImgHeight) {
+                                imgHeightApres = maxImgHeight;
+                                imgWidthApres = (imgApres.width / imgApres.height) * imgHeightApres;
+                            }
+
+                            const imgXAvant = margin + (halfWidth - imgWidthAvant) / 2;
+                            const imgXApres = margin + halfWidth + spacing + (halfWidth - imgWidthApres) / 2;
+                            
+                            page.drawText("ÉTAT EXISTANT (Avant)", { x: margin, y: startY, size: 12, font: fontBold, color: rgb(...activeTheme.text_title) });
+                            const rectYAvant = startY - imgHeightAvant - 10;
+                            page.drawRectangle({ x: imgXAvant - 2, y: rectYAvant - 2, width: imgWidthAvant + 4, height: imgHeightAvant + 4, color: rgb(...activeTheme.border) });
+                            page.drawImage(imgAvant, { x: imgXAvant, y: rectYAvant, width: imgWidthAvant, height: imgHeightAvant });
+
+                            page.drawText("ÉTAT PROJETÉ (Après)", { x: margin + halfWidth + spacing, y: startY, size: 12, font: fontBold, color: rgb(...activeTheme.text_title) });
+                            const rectYApres = startY - imgHeightApres - 10;
+                            page.drawRectangle({ x: imgXApres - 2, y: rectYApres - 2, width: imgWidthApres + 4, height: imgHeightApres + 4, color: rgb(...activeTheme.border) });
+                            page.drawImage(imgApres, { x: imgXApres, y: rectYApres, width: imgWidthApres, height: imgHeightApres });
+
+                            // Draw descriptions if they exist underneath
+                            let finalYAvant = rectYAvant - 20;
+                            let finalYApres = rectYApres - 20;
+                            
+                            if (ps.description_avant) {
+                                finalYAvant = drawTextWrapped(ps.description_avant, fontRegular, 9, activeTheme.text_body, margin, rectYAvant - 20, halfWidth);
+                            }
+                            if (ps.description_apres) {
+                                finalYApres = drawTextWrapped(ps.description_apres, fontRegular, 9, activeTheme.text_body, margin + halfWidth + spacing, rectYApres - 20, halfWidth);
+                            }
+
+                            maxRectY = Math.min(finalYAvant, finalYApres);
+                        } else {
+                            const img = imgAvant || imgApres;
+                            const title = imgAvant ? "ÉTAT EXISTANT (Avant)" : "ÉTAT PROJETÉ (Après)";
+
+                            let imgWidth = availableWidth;
+                            let imgHeight = (img!.height / img!.width) * imgWidth;
+                            
+                            const maxImgHeight = startY - margin - 80;
+                            if (imgHeight > maxImgHeight) {
+                                imgHeight = maxImgHeight;
+                                imgWidth = (img!.width / img!.height) * imgHeight;
+                            }
+
+                            const imgX = margin + (availableWidth - imgWidth) / 2;
+
+                            page.drawText(title, { x: margin, y: startY, size: 12, font: fontBold, color: rgb(...activeTheme.text_title) });
+                            const rectY = startY - imgHeight - 10;
+
+                            page.drawRectangle({ x: imgX - 2, y: rectY - 2, width: imgWidth + 4, height: imgHeight + 4, color: rgb(...activeTheme.border) });
+                            page.drawImage(img!, { x: imgX, y: rectY, width: imgWidth, height: imgHeight });
+                            
+                            let finalY = rectY - 20;
+                            const desc = imgAvant ? ps.description_avant : ps.description_apres;
+                            if (desc) {
+                                finalY = drawTextWrapped(desc, fontRegular, 9, activeTheme.text_body, margin, rectY - 20, availableWidth);
+                            }
+
+                            maxRectY = finalY;
                         }
 
-                        // Center the image horizontally if it was scaled down
-                        const imgX = margin + ((pageWidth - margin * 2) - imgWidth) / 2;
+                        return maxRectY - 10;
 
-                        page.drawText(title, { x: margin, y: startY, size: 12, font: fontBold, color: rgb(...activeTheme.text_title) });
-                        const rectY = startY - imgHeight - 10;
-
-                        // Draw image with border
-                        page.drawRectangle({
-                            x: imgX - 2, y: rectY - 2, width: imgWidth + 4, height: imgHeight + 4,
-                            color: rgb(...activeTheme.border)
-                        });
-                        page.drawImage(img, { x: imgX, y: rectY, width: imgWidth, height: imgHeight });
-
-                        return rectY - 30; // Return next Y position
                     } catch (e) {
-                        console.error("Error embedding image in PDF", e);
-                        page.drawText(`[Erreur d'insertion de l'image: ${title}]`, { x: margin, y: startY - 20, size: 10, font: fontRegular, color: rgb(1, 0, 0) });
+                        console.error("Error embedding images in PDF", e);
+                        page.drawText("[Erreur d'insertion des images]", { x: margin, y: startY - 20, size: 10, font: fontRegular, color: rgb(1, 0, 0) });
                         return startY - 40;
                     }
                 };
 
                 y -= 10;
-                let currentY = y;
-                if (ps.base64_avant) {
-                    currentY = await drawImageStr(ps.base64_avant, "ÉTAT EXISTANT (Avant)", currentY);
-                }
-                if (ps.base64_apres) {
-                    await drawImageStr(ps.base64_apres, "ÉTAT PROJETÉ (Après)", currentY);
-                }
+                y = await drawImagePair(ps, y);
             }
         }
 
@@ -324,3 +396,4 @@ export async function POST(req: Request) {
         return NextResponse.json({ success: false, error: error.message }, { status: 500 });
     }
 }
+
