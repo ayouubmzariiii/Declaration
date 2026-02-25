@@ -102,6 +102,8 @@ export interface DeclarationPrealable {
   pieces_jointes: PiecesJointes;
 }
 
+import { AVANT_1, APRES_1, AVANT_2, APRES_2 } from "./mockImages";
+
 export function getInitialDP(): DeclarationPrealable {
   const today = new Date();
   const dateStr = today.toLocaleDateString('fr-FR');
@@ -180,7 +182,26 @@ export function getInitialDP(): DeclarationPrealable {
       risques_reglementaires_potentiels: "",
       niveau_confiance_global: "",
     },
-    photo_sets: [],
+    photo_sets: [
+      {
+        label: "Façade principale",
+        chemin_avant: "",
+        chemin_apres: "",
+        description_avant: "État existant - Façade avant travaux",
+        description_apres: "État projeté - Façade modifiée",
+        base64_avant: AVANT_1,
+        base64_apres: APRES_1,
+      },
+      {
+        label: "Façade arrière",
+        chemin_avant: "",
+        chemin_apres: "",
+        description_avant: "État existant - Façade arrière",
+        description_apres: "État projeté - Façade arrière modifiée",
+        base64_avant: AVANT_2,
+        base64_apres: APRES_2,
+      },
+    ],
     pieces_jointes: {
       "DP1": { nom: "Plan de situation", fourni: false },
       "DP2": { nom: "Plan de masse", fourni: false },

@@ -1,9 +1,50 @@
 import { NextResponse } from "next/server";
+import { AVANT_1, APRES_1, AVANT_2, APRES_2 } from "./mock";
 
 export async function POST(req: Request) {
     try {
         const body = await req.json();
         const { model, custom_prompt, temperature, max_tokens, photos_avant, photos_apres } = body;
+
+        // --- MOCK RESPONSE FOR LOCAL IMAGES ---
+        return NextResponse.json({
+            success: true,
+            notice: {
+                etat_initial: "Terrain plat avec maison de plain pied, façade enduit blanc, toiture en tuiles romanes.",
+                etat_projete: "Création d'ouvertures supplémentaires et modification de la couleur de façade en gris clair.",
+                justification: "Améliorer la luminosité intérieure et moderniser l'aspect global de la construction.",
+                insertion_paysagere: "Le projet s'intègre parfaitement dans le tissu pavillonnaire environnant, respectant les gabarits existants.",
+                impact_environnemental: "Faible impact, utilisation de matériaux durables pour les nouvelles menuiseries.",
+                modifications_detaillees: "- Remplacement de 2 fenêtres par des baies vitrées\n- Ravalement de façade",
+                modification_volume: "Aucune modification de volume.",
+                modification_emprise_au_sol: "0",
+                modification_surface_plancher: "0",
+                hauteur_estimee_existante: "4.50m",
+                hauteur_estimee_projete: "4.50m",
+                coherence_architecturale: "Respect des prescriptions du PLU de la commune.",
+                risques_reglementaires_potentiels: "Aucun risque identifié, les modifications sont mineures.",
+                niveau_confiance_global: "Élevé (90%)"
+            },
+            aspect: {
+                facade_materiaux_existants: "Enduit",
+                facade_materiaux_projetes: "Enduit gratté",
+                menuiseries_existantes: "Bois",
+                menuiseries_projetees: "Aluminium rupture de pont thermique",
+                toiture_materiaux_existants: "Tuiles mécaniques",
+                toiture_materiaux_projetes: "Tuiles mécaniques (conservées)",
+                couleur_facade: "Blanc / Beige",
+                couleur_menuiseries: "Gris Anthracite (RAL 7016)",
+                couleur_volets: "Gris Anthracite",
+                couleur_toiture: "Rouge / Brun",
+                nombre_ouvertures_existantes: "4",
+                nombre_ouvertures_projetees: "4 (agrandies)"
+            },
+            // Note: Returning local images mock directly to the frontend context 
+            // is usually done by updating the frontend state directly, but since this
+            // is the analyser, we'll just short-circuit the API. The DP context 
+            // keeps its base64 images so the generated PDF will use those anyway.
+        });
+        // --------------------------------------
 
         const apiKey = process.env.NVIDIA_API_KEY;
         if (!apiKey) {
