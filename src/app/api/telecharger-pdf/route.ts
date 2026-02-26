@@ -232,12 +232,19 @@ export async function POST(req: Request) {
 
         // DP7 & DP8 Photographies
         if (dp.photo_sets && dp.photo_sets.length > 0) {
+            let firstPhotosPage = true;
             for (const [idx, ps] of dp.photo_sets.entries()) {
-                page = pdfDoc.addPage([pageWidth, pageHeight]);
-                drawHeader();
+                if (firstPhotosPage || y < margin + 300) {
+                    page = pdfDoc.addPage([pageWidth, pageHeight]);
+                    drawHeader();
 
-                page.drawText("DP7 et DP8 – Photographies", { x: margin, y, size: 14, font: fontBold, color: rgb(0, 0, 0) });
-                y -= 25;
+                    page.drawText("DP7 et DP8 – Photographies", { x: margin, y, size: 14, font: fontBold, color: rgb(0, 0, 0) });
+                    y -= 25;
+                    firstPhotosPage = false;
+                } else {
+                    y -= 20;
+                }
+
                 page.drawText(`Photographie : ${ps.label.toUpperCase()} (Vue proche : DP7 / Vue lointaine : DP8)`, { x: margin, y, size: 10, font: fontRegular, color: rgb(0.2, 0.2, 0.2) });
                 y -= 30;
 
