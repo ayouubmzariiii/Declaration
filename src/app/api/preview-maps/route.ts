@@ -20,7 +20,7 @@ export async function GET(req: Request) {
             const lat = parseFloat(data[0].lat);
             const lon = parseFloat(data[0].lon);
 
-            const getIgnMapUrl = (sizeMeters: number, type: 'plan' | 'satellite') => {
+            const getIgnMapUrl = (sizeMeters: number, type: 'plan' | 'satellite' | 'cadastre') => {
                 const latDiff = (sizeMeters / 2) / 111320;
                 const lonDiff = (sizeMeters / 2) / (111320 * Math.cos(lat * Math.PI / 180));
 
@@ -30,18 +30,23 @@ export async function GET(req: Request) {
                 const maxLon = lon + lonDiff;
 
                 const bbox = `${minLat},${minLon},${maxLat},${maxLon}`;
-                const layer = type === 'plan' ? 'GEOGRAPHICALGRIDSYSTEMS.PLANIGNV2' : 'ORTHOIMAGERY.ORTHOPHOTOS';
-                return `https://data.geopf.fr/wms-r/wms?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&BBOX=${bbox}&CRS=EPSG:4326&WIDTH=600&HEIGHT=400&LAYERS=${layer}&STYLES=&FORMAT=image/jpeg`;
+                let layer = 'GEOGRAPHICALGRIDSYSTEMS.PLANIGNV2';
+                let format = 'image/jpeg';
+                if (type === 'satellite') layer = 'ORTHOIMAGERY.ORTHOPHOTOS';
+                if (type === 'cadastre') {
+                    layer = 'CADASTRALPARCELS.PARCELLAIRE_EXPRESS';
+                    format = 'image/png';
+                }
+                return `https://data.geopf.fr/wms-r/wms?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&BBOX=${bbox}&CRS=EPSG:4326&WIDTH=600&HEIGHT=400&LAYERS=${layer}&STYLES=&FORMAT=${format}`;
             };
-
-            const mapDP1Url = getIgnMapUrl(800, 'plan');
-            const mapDP2Url = getIgnMapUrl(100, 'satellite');
 
             return NextResponse.json({
                 success: true,
                 maps: {
-                    dp1: mapDP1Url,
-                    dp2_dp3: mapDP2Url
+                    dp1_1: getIgnMapUrl(2500, 'plan'),
+                    dp1_2: getIgnMapUrl(150, 'cadastre'),
+                    dp1_3: getIgnMapUrl(150, 'satellite'),
+                    dp2: getIgnMapUrl(100, 'satellite')
                 }
             });
         } else {
