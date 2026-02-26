@@ -67,6 +67,15 @@ export interface PhotoSet {
   base64_apres?: string | null;  // Used for React state before uploading to server
 }
 
+export interface PlansExterieurs {
+  dp2_mode: "upload" | "ai";
+  dp2_base64: string | null;
+  dp3_mode: "upload" | "ai";
+  dp3_base64: string | null;
+  dp4_mode: "upload" | "ai";
+  dp4_base64: string | null;
+}
+
 export interface NoticeDescriptive {
   etat_initial: string;
   etat_projete: string;
@@ -100,6 +109,7 @@ export interface DeclarationPrealable {
   aspect_exterieur: AspectExterieur;
   notice: NoticeDescriptive;
   photo_sets: PhotoSet[];
+  plans: PlansExterieurs;
   pieces_jointes: PiecesJointes;
 }
 
@@ -202,6 +212,14 @@ export function getInitialDP(): DeclarationPrealable {
         base64_apres: "/images/apres 2.jpeg"
       }
     ],
+    plans: {
+      dp2_mode: "ai",
+      dp2_base64: "/plans/plan de mass.png",
+      dp3_mode: "ai",
+      dp3_base64: "/plans/plan de coupe.png",
+      dp4_mode: "ai",
+      dp4_base64: "/plans/plan des facades.png"
+    },
     pieces_jointes: {
       "DP1": { nom: "Plan de situation", fourni: false },
       "DP2": { nom: "Plan de masse", fourni: false },

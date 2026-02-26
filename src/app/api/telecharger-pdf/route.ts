@@ -432,6 +432,55 @@ export async function POST(req: Request) {
             y -= height + 30;
         };
 
+        const drawUserPlanBox = async (title: string, desc: string, base64Data: string | null | undefined) => {
+            const height = 500;
+            if (y < margin + height + 50) {
+                page = pdfDoc.addPage([pageWidth, pageHeight]);
+                drawHeader();
+            }
+
+            page.drawText(title, { x: margin, y, size: 12, font: fontBold, color: rgb(0, 0, 0) });
+            y -= 15;
+            page.drawText(desc, { x: margin, y, size: 9, font: fontRegular, color: rgb(0.3, 0.3, 0.3) });
+            y -= 15;
+
+            const boxWidth = pageWidth - margin * 2;
+            page.drawRectangle({ x: margin, y: y - height, width: boxWidth, height: height, borderColor: rgb(0, 0, 0), borderWidth: 1 });
+
+            if (base64Data) {
+                try {
+                    let cleanBase64 = base64Data;
+                    if (base64Data.startsWith("/plans/")) {
+                        const fs = require('fs'); const path = require('path');
+                        cleanBase64 = fs.readFileSync(path.join(process.cwd(), "public", base64Data.replace(/^\//, ""))).toString("base64");
+                    } else {
+                        cleanBase64 = base64Data.replace(/^data:image\/\w+;base64,/, "");
+                    }
+                    const bytes = Uint8Array.from(atob(cleanBase64), c => c.charCodeAt(0));
+                    const img = base64Data.includes("png") || base64Data.startsWith("data:image/png") ? await pdfDoc.embedPng(bytes) : await pdfDoc.embedJpg(bytes);
+
+                    let imgW = boxWidth - 2;
+                    let imgH = (img.height / img.width) * imgW;
+                    if (imgH > height - 2) {
+                        imgH = height - 2;
+                        imgW = (img.width / img.height) * imgH;
+                    }
+                    const cX = margin + 1 + (boxWidth - 2 - imgW) / 2;
+                    const cY = y - height + 1 + (height - 2 - imgH) / 2;
+                    page.drawImage(img, { x: cX, y: cY, width: imgW, height: imgH });
+                } catch (e) {
+                    console.error("erreur de rendu plan", e);
+                    const textWidth = fontBold.widthOfTextAtSize("ERREUR DE LECTURE PLAN", 12);
+                    page.drawText("ERREUR DE LECTURE PLAN", { x: (pageWidth - textWidth) / 2, y: y - height / 2, size: 12, font: fontBold, color: rgb(0.5, 0.5, 0.5) });
+                }
+            } else {
+                const textWidth = fontBold.widthOfTextAtSize("PIÈCE À JOINDRE DANS CE CADRE", 12);
+                page.drawText("PIÈCE À JOINDRE DANS CE CADRE", { x: (pageWidth - textWidth) / 2, y: y - height / 2, size: 12, font: fontBold, color: rgb(0.5, 0.5, 0.5) });
+            }
+
+            y -= height + 30;
+        };
+
         // --- PIÈCES OBLIGATOIRES ---
         const coords = await geocodeAddress(dp.terrain?.adresse || "", dp.terrain?.commune || "");
         let imgDP1_1 = null;
@@ -458,17 +507,22 @@ export async function POST(req: Request) {
         // DP2 Plan de masse
         page = pdfDoc.addPage([pageWidth, pageHeight]);
         drawHeader();
-        await drawIgnMapBox("DP2 – Plan de masse des constructions à édifier ou modifier", "Implantation précise sur le terrain (échelle 1/100-1/200) : Plan vue du dessus, orthophoto générée par Géoportail.", imgDP2, 500);
+        await drawUserPlanBox("DP2 – Plan de masse des constructions à édifier ou modifier", "Implantation précise sur le terrain (échelle 1/100-1/200).", dp.plans?.dp2_base64);
 
         // DP3 Plan en coupe
         page = pdfDoc.addPage([pageWidth, pageHeight]);
         drawHeader();
-        drawPlaceholderBox("DP3 – Plan en coupe du terrain et de la construction", "Coupe verticale. Si insuffisant, complétez ce document avec une coupe dessinée.", 500);
+        await drawUserPlanBox("DP3 – Plan en coupe du terrain et de la construction", "Coupe verticale du bâtiment et du terrain.", dp.plans?.dp3_base64);
 
-        // DP4 Notice descriptive
+        // DP4 Plan des façades et toitures
         page = pdfDoc.addPage([pageWidth, pageHeight]);
         drawHeader();
-        page.drawText("DP4 – Notice descriptive", { x: margin, y, size: 14, font: fontBold, color: rgb(0, 0, 0) });
+        await drawUserPlanBox("DP4 – Plan des façades et des toitures", "Élévation architecturale.", dp.plans?.dp4_base64);
+
+        // DP11 Notice descriptive
+        page = pdfDoc.addPage([pageWidth, pageHeight]);
+        drawHeader();
+        page.drawText("DP11 – Notice descriptive", { x: margin, y, size: 14, font: fontBold, color: rgb(0, 0, 0) });
         y -= 25;
         drawText("Explique : le projet, les matériaux, les couleurs, et l'intégration dans l'environnement.", fontRegular, 10, [0.3, 0.3, 0.3], margin, 15);
         y -= 10;
@@ -490,10 +544,10 @@ export async function POST(req: Request) {
         drawField("Toitures :", `${dp.aspect_exterieur?.toiture_materiaux_projetes || ''} - ${dp.aspect_exterieur?.couleur_toiture || ''}`);
         drawField("Menuiseries :", `${dp.aspect_exterieur?.menuiseries_projetees || ''} - ${dp.aspect_exterieur?.couleur_menuiseries || ''}`);
 
-        // DP5 Plans des façades et toitures
+        // DP5 Représentation de l'aspect extérieur
         page = pdfDoc.addPage([pageWidth, pageHeight]);
         drawHeader();
-        drawPlaceholderBox("DP5 – Plans des façades et toitures", "Avant / Après travaux.", 500);
+        drawPlaceholderBox("DP5 – Représentation de l'aspect extérieur", "Avant / Après travaux.", 500);
 
         // DP6 Document graphique d'insertion
         page = pdfDoc.addPage([pageWidth, pageHeight]);

@@ -32,7 +32,7 @@ export default function Step2() {
 
     return (
         <div className="wizard-container">
-            <Progress step={2} totalSteps={5} />
+            <Progress step={2} totalSteps={6} />
 
             <form onSubmit={handleSubmit} className="wizard-form">
                 <div className="form-header">

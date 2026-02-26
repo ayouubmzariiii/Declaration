@@ -183,7 +183,7 @@ RÈGLES STRICTES :
 
     return (
         <div className="wizard-container">
-            <Progress step={4} totalSteps={5} />
+            <Progress step={4} totalSteps={6} />
 
             <form onSubmit={handleSubmit} className="wizard-form" id="reviewForm">
                 <div className="form-header">
