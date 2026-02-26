@@ -8,7 +8,7 @@ import { Progress } from "@/components/Progress";
 export default function Step1() {
     const router = useRouter();
     const { dp, updateDP } = useDP();
-    const [mapPreview, setMapPreview] = useState<{ dp1: string, dp2_dp3: string } | null>(null);
+    const [mapPreview, setMapPreview] = useState<{ dp1_1: string, dp1_2: string, dp1_3: string, dp2: string } | null>(null);
     const [loadingMap, setLoadingMap] = useState(false);
     const [mapError, setMapError] = useState("");
 
@@ -202,13 +202,27 @@ export default function Step1() {
                         {mapPreview && (
                             <div className="map-images-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginTop: '10px' }}>
                                 <div>
-                                    <strong style={{ display: 'block', fontSize: '0.9rem', marginBottom: '5px' }}>DP1 - Plan de situation</strong>
-                                    <img src={mapPreview.dp1} alt="DP1 Plan" style={{ width: '100%', borderRadius: '4px', border: '1px solid #ccc' }} />
+                                    <strong style={{ display: 'block', fontSize: '0.9rem', marginBottom: '5px' }}>DP1 - Plan de situation (Ville)</strong>
+                                    <img src={mapPreview.dp1_1} alt="DP1 Ville" style={{ width: '100%', borderRadius: '4px', border: '1px solid #ccc' }} />
                                 </div>
                                 <div>
-                                    <strong style={{ display: 'block', fontSize: '0.9rem', marginBottom: '5px' }}>DP2/DP3 - Plan de masse/coupe</strong>
+                                    <strong style={{ display: 'block', fontSize: '0.9rem', marginBottom: '5px' }}>DP1 - Plan Cadastral</strong>
                                     <div style={{ position: 'relative' }}>
-                                        <img src={mapPreview.dp2_dp3} alt="DP2 Plan" style={{ width: '100%', borderRadius: '4px', border: '1px solid #ccc' }} />
+                                        <img src={mapPreview.dp1_2} alt="DP1 Cadastre" style={{ width: '100%', borderRadius: '4px', border: '1px solid #ccc', backgroundColor: '#fff' }} />
+                                        <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: '20px', height: '20px', border: '2px solid red', borderRadius: '50%' }}></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <strong style={{ display: 'block', fontSize: '0.9rem', marginBottom: '5px' }}>DP1 - Plan de situation (Proximité)</strong>
+                                    <div style={{ position: 'relative' }}>
+                                        <img src={mapPreview.dp1_3} alt="DP1 Satellite" style={{ width: '100%', borderRadius: '4px', border: '1px solid #ccc' }} />
+                                        <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: '20px', height: '20px', border: '2px solid red', borderRadius: '50%' }}></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <strong style={{ display: 'block', fontSize: '0.9rem', marginBottom: '5px' }}>DP2 - Plan de masse (Orthophoto)</strong>
+                                    <div style={{ position: 'relative' }}>
+                                        <img src={mapPreview.dp2} alt="DP2 Plan" style={{ width: '100%', borderRadius: '4px', border: '1px solid #ccc' }} />
                                         <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: '20px', height: '20px', border: '2px solid red', borderRadius: '50%' }}></div>
                                         <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: '4px', height: '4px', backgroundColor: 'red', borderRadius: '50%' }}></div>
                                     </div>

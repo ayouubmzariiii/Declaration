@@ -201,7 +201,7 @@ export async function POST(req: Request) {
             return null;
         };
 
-        const getIgnMap = async (lat: number, lon: number, sizeMeters: number, type: 'plan' | 'satellite') => {
+        const getIgnMap = async (lat: number, lon: number, sizeMeters: number, type: 'plan' | 'satellite' | 'cadastre') => {
             try {
                 const latDiff = (sizeMeters / 2) / 111320;
                 const lonDiff = (sizeMeters / 2) / (111320 * Math.cos(lat * Math.PI / 180));
@@ -212,8 +212,15 @@ export async function POST(req: Request) {
                 const maxLon = lon + lonDiff;
 
                 const bbox = `${minLat},${minLon},${maxLat},${maxLon}`;
-                const layer = type === 'plan' ? 'GEOGRAPHICALGRIDSYSTEMS.PLANIGNV2' : 'ORTHOIMAGERY.ORTHOPHOTOS';
-                const url = `https://data.geopf.fr/wms-r/wms?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&BBOX=${bbox}&CRS=EPSG:4326&WIDTH=800&HEIGHT=600&LAYERS=${layer}&STYLES=&FORMAT=image/jpeg`;
+                let layer = 'GEOGRAPHICALGRIDSYSTEMS.PLANIGNV2';
+                let format = 'image/jpeg';
+                if (type === 'satellite') layer = 'ORTHOIMAGERY.ORTHOPHOTOS';
+                if (type === 'cadastre') {
+                    layer = 'CADASTRALPARCELS.PARCELLAIRE_EXPRESS';
+                    format = 'image/png';
+                }
+
+                const url = `https://data.geopf.fr/wms-r/wms?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&BBOX=${bbox}&CRS=EPSG:4326&WIDTH=600&HEIGHT=400&LAYERS=${layer}&STYLES=&FORMAT=${format}`;
 
                 const res = await fetch(url);
                 if (res.ok) {
@@ -238,23 +245,22 @@ export async function POST(req: Request) {
             y -= 15;
 
             const boxWidth = pageWidth - margin * 2;
-            page.drawRectangle({ x: margin, y: y - height, width: boxWidth, height: height, borderColor: rgb(0, 0, 0), borderWidth: 1 });
 
             if (base64Jpg) {
                 try {
                     const imageBytes = Uint8Array.from(atob(base64Jpg), c => c.charCodeAt(0));
                     const img = await pdfDoc.embedJpg(imageBytes);
 
-                    let imgWidth = boxWidth;
+                    let imgWidth = boxWidth - 2;
                     let imgHeight = (img.height / img.width) * imgWidth;
 
-                    if (imgHeight > height) {
-                        imgHeight = height;
+                    if (imgHeight > height - 2) {
+                        imgHeight = height - 2;
                         imgWidth = (img.width / img.height) * imgHeight;
                     }
 
-                    const imgX = margin + (boxWidth - imgWidth) / 2;
-                    page.drawImage(img, { x: imgX, y: y - height + (height - imgHeight) / 2, width: imgWidth, height: imgHeight });
+                    const imgX = margin + 1 + (boxWidth - 2 - imgWidth) / 2;
+                    page.drawImage(img, { x: imgX, y: y - height + 1 + (height - 2 - imgHeight) / 2, width: imgWidth, height: imgHeight });
 
                     // Draw a little red target reticle to show the parcel location
                     const centerX = margin + boxWidth / 2;
@@ -271,23 +277,104 @@ export async function POST(req: Request) {
                 page.drawText("PIÈCE À JOINDRE DANS CE CADRE", { x: (pageWidth - textWidth) / 2, y: y - height / 2, size: 12, font: fontBold, color: rgb(0.5, 0.5, 0.5) });
             }
 
+            page.drawRectangle({ x: margin, y: y - height, width: boxWidth, height: height, borderColor: rgb(0, 0, 0), borderWidth: 1 });
+
+            y -= height + 30;
+        };
+
+        const drawDP1QuadBox = async (img1Base: string | null, img2Base: string | null, img3Base: string | null, photoBase: string | null) => {
+            const height = 500;
+            if (y < margin + height + 50) {
+                page = pdfDoc.addPage([pageWidth, pageHeight]);
+                drawHeader();
+            }
+
+            page.drawText("DP1 – Plan de situation du terrain", { x: margin, y, size: 12, font: fontBold, color: rgb(0, 0, 0) });
+            y -= 15;
+            page.drawText("Localise la parcelle dans la commune et précise son environnement.", { x: margin, y, size: 9, font: fontRegular, color: rgb(0.3, 0.3, 0.3) });
+            y -= 15;
+
+            const boxWidth = pageWidth - margin * 2;
+            page.drawRectangle({ x: margin, y: y - height, width: boxWidth, height: height, borderColor: rgb(0, 0, 0), borderWidth: 1 });
+
+            const quadW = boxWidth / 2;
+            const quadH = height / 2;
+
+            const drawQuad = async (base64Data: string | null, isPng: boolean, isPhoto: boolean, qX: number, qY: number, title: string) => {
+                page.drawRectangle({ x: qX, y: qY, width: quadW, height: quadH, borderColor: rgb(0.8, 0.8, 0.8), borderWidth: 1 });
+                if (base64Data) {
+                    try {
+                        let bytes, img;
+                        if (isPhoto) {
+                            let cleanBase64 = base64Data;
+                            if (base64Data.startsWith("/images/")) {
+                                const fs = require('fs'); const path = require('path');
+                                cleanBase64 = fs.readFileSync(path.join(process.cwd(), "public", base64Data)).toString("base64");
+                            } else {
+                                cleanBase64 = base64Data.replace(/^data:image\/\w+;base64,/, "");
+                            }
+                            bytes = Uint8Array.from(atob(cleanBase64), c => c.charCodeAt(0));
+                            img = base64Data.includes("png") ? await pdfDoc.embedPng(bytes) : await pdfDoc.embedJpg(bytes);
+                        } else {
+                            bytes = Uint8Array.from(atob(base64Data), c => c.charCodeAt(0));
+                            img = isPng ? await pdfDoc.embedPng(bytes) : await pdfDoc.embedJpg(bytes);
+                        }
+
+                        let imgW = quadW - 2;
+                        let imgH = (img.height / img.width) * imgW;
+                        if (imgH > quadH - 2) {
+                            imgH = quadH - 2;
+                            imgW = (img.width / img.height) * imgH;
+                        }
+                        const cX = qX + 1 + (quadW - 2 - imgW) / 2;
+                        const cY = qY + 1 + (quadH - 2 - imgH) / 2;
+                        page.drawImage(img, { x: cX, y: cY, width: imgW, height: imgH });
+
+                        if (!isPhoto) {
+                            page.drawCircle({ x: qX + quadW / 2, y: qY + quadH / 2, size: 3, color: rgb(1, 0, 0) });
+                            page.drawCircle({ x: qX + quadW / 2, y: qY + quadH / 2, size: 10, borderColor: rgb(1, 0, 0), borderWidth: 1.5 });
+                        }
+                    } catch (e) {
+                        console.error("erreur de rendu image/quad", e);
+                    }
+                }
+
+                const textW = fontRegular.widthOfTextAtSize(title, 8);
+                page.drawRectangle({ x: qX + 8, y: qY + 8, width: textW + 8, height: 14, color: rgb(1, 1, 1), borderColor: rgb(0, 0, 0), borderWidth: 0.5 });
+                page.drawText(title, { x: qX + 12, y: qY + 12, size: 8, font: fontRegular, color: rgb(0, 0, 0) });
+            };
+
+            const q1X = margin; const q1Y = y - quadH;
+            const q2X = margin + quadW; const q2Y = y - quadH;
+            const q3X = margin; const q3Y = y - height;
+            const q4X = margin + quadW; const q4Y = y - height;
+
+            await drawQuad(img1Base, false, false, q1X, q1Y, "Plan de situation dans la ville 1/25000");
+            await drawQuad(img2Base, true, false, q2X, q2Y, "Plan cadastral 1/1700");
+            await drawQuad(img3Base, false, false, q3X, q3Y, "Plan de situation de proximité 1/1700");
+            await drawQuad(photoBase, false, true, q4X, q4Y, "Vue depuis la rue");
+
             y -= height + 30;
         };
 
         // --- PIÈCES OBLIGATOIRES ---
         const coords = await geocodeAddress(dp.terrain?.adresse || "", dp.terrain?.commune || "");
-        let imgDP1 = null;
+        let imgDP1_1 = null;
+        let imgDP1_2 = null;
+        let imgDP1_3 = null;
         let imgDP2 = null;
 
         if (coords) {
-            imgDP1 = await getIgnMap(coords.lat, coords.lon, 800, 'plan');      // DP1: 800m range
-            imgDP2 = await getIgnMap(coords.lat, coords.lon, 100, 'satellite'); // DP2/DP3: 100m range
+            imgDP1_1 = await getIgnMap(coords.lat, coords.lon, 2500, 'plan');
+            imgDP1_2 = await getIgnMap(coords.lat, coords.lon, 150, 'cadastre');
+            imgDP1_3 = await getIgnMap(coords.lat, coords.lon, 150, 'satellite');
+            imgDP2 = await getIgnMap(coords.lat, coords.lon, 100, 'satellite');
         }
 
         // DP1 Plan de situation
         page = pdfDoc.addPage([pageWidth, pageHeight]);
         drawHeader();
-        await drawIgnMapBox("DP1 – Plan de situation du terrain", "Localise la parcelle dans la commune (échelle 1/500 ou 1/2000, avec nord, limites, adresse). Dessin simple généré par Géoportail.", imgDP1, 500);
+        await drawDP1QuadBox(imgDP1_1, imgDP1_2, imgDP1_3, dp.photo_sets?.[0]?.base64_avant || null);
 
         // DP2 Plan de masse
         page = pdfDoc.addPage([pageWidth, pageHeight]);
@@ -297,7 +384,7 @@ export async function POST(req: Request) {
         // DP3 Plan en coupe
         page = pdfDoc.addPage([pageWidth, pageHeight]);
         drawHeader();
-        await drawIgnMapBox("DP3 – Plan en coupe du terrain et de la construction", "Coupe verticale. Si insuffisant, complétez ce document avec une coupe dessinée.", imgDP2, 500);
+        drawPlaceholderBox("DP3 – Plan en coupe du terrain et de la construction", "Coupe verticale. Si insuffisant, complétez ce document avec une coupe dessinée.", 500);
 
         // DP4 Notice descriptive
         page = pdfDoc.addPage([pageWidth, pageHeight]);

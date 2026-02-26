@@ -130,7 +130,16 @@ export default function Step5() {
                 <div className="summary-section">
                     <h3 className="summary-title">📋 Pièces jointes</h3>
                     <div className="pieces-list">
-                        {Object.entries(dp.pieces_jointes).map(([ref, info]) => (
+                        {Object.entries({
+                            ...dp.pieces_jointes,
+                            "DP1": { ...dp.pieces_jointes["DP1"], fourni: true },
+                            "DP2": { ...dp.pieces_jointes["DP2"], fourni: true },
+                            "DP3": { ...dp.pieces_jointes["DP3"], fourni: false },
+                            "DP4": { ...dp.pieces_jointes["DP4"], fourni: false },
+                            "DP7": { ...dp.pieces_jointes["DP7"], fourni: dp.photo_sets.length > 0 },
+                            "DP8": { ...dp.pieces_jointes["DP8"], fourni: dp.photo_sets.length > 0 },
+                            "DP11": { ...dp.pieces_jointes["DP11"], fourni: !!(dp.notice.etat_initial || dp.notice.etat_projete) },
+                        }).map(([ref, info]) => (
                             <div key={ref} className={`piece-item ${info.fourni ? 'piece-fourni' : 'piece-manquant'}`}>
                                 <span className="piece-ref">{ref}</span>
                                 <span className="piece-nom">{info.nom}</span>
