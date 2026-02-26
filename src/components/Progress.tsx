@@ -2,11 +2,12 @@ import React from "react";
 
 export function Progress({ step, totalSteps }: { step: number; totalSteps: number }) {
     const stepsData = [
-        { label: "Identité & Lieu", icon: "👤" },
-        { label: "Type de travaux", icon: "🔨" },
+        { label: "Identité", icon: "👤" },
+        { label: "Travaux", icon: "🔨" },
         { label: "Photos", icon: "📷" },
-        { label: "Analyse IA", icon: "🤖" },
-        { label: "Export PDF", icon: "📄" }
+        { label: "Notice", icon: "🤖" },
+        { label: "Plans", icon: "🏗️" },
+        { label: "Export", icon: "📄" }
     ];
 
     return (

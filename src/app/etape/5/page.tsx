@@ -76,12 +76,38 @@ export default function Step5() {
 
                 {currentMode === "upload" && (
                     <div className="form-group" style={{ marginBottom: '15px' }}>
-                        <input
-                            type="file"
-                            accept="image/*,application/pdf"
-                            onChange={(e) => handleFileUpload(e, planKey)}
-                            className="file-input"
-                        />
+                        <label
+                            htmlFor={`file-upload-${planKey}`}
+                            style={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                border: '2px dashed var(--border-color)',
+                                borderRadius: '8px',
+                                padding: '20px',
+                                cursor: 'pointer',
+                                backgroundColor: '#f9fafb',
+                                transition: 'all 0.2s ease'
+                            }}
+                            onMouseOver={(e) => (e.currentTarget.style.borderColor = 'var(--primary-color)')}
+                            onMouseOut={(e) => (e.currentTarget.style.borderColor = 'var(--border-color)')}
+                        >
+                            <span style={{ fontSize: '2rem', marginBottom: '10px' }}>📤</span>
+                            <span style={{ fontWeight: '500', color: 'var(--text-color)' }}>
+                                {currentImg && currentImg !== defaultImg ? "Remplacer l'image" : "Cliquez pour uploader votre plan"}
+                            </span>
+                            <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: '5px' }}>
+                                Formats acceptés : JPG, PNG, PDF (max 5 Mo)
+                            </span>
+                            <input
+                                id={`file-upload-${planKey}`}
+                                type="file"
+                                accept="image/*,application/pdf"
+                                onChange={(e) => handleFileUpload(e, planKey)}
+                                style={{ display: 'none' }}
+                            />
+                        </label>
                     </div>
                 )}
 
