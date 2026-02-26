@@ -31,7 +31,7 @@ export async function GET(req: Request) {
 
                 const bbox = `${minLat},${minLon},${maxLat},${maxLon}`;
                 const layer = type === 'plan' ? 'GEOGRAPHICALGRIDSYSTEMS.PLANIGNV2' : 'ORTHOIMAGERY.ORTHOPHOTOS';
-                return `https://wxs.ign.fr/essentiels/geoportail/r/wms?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&BBOX=${bbox}&CRS=EPSG:4326&WIDTH=600&HEIGHT=400&LAYERS=${layer}&STYLES=normal&FORMAT=image/jpeg`;
+                return `https://data.geopf.fr/wms-r/wms?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&BBOX=${bbox}&CRS=EPSG:4326&WIDTH=600&HEIGHT=400&LAYERS=${layer}&STYLES=&FORMAT=image/jpeg`;
             };
 
             const mapDP1Url = getIgnMapUrl(800, 'plan');

@@ -213,7 +213,7 @@ export async function POST(req: Request) {
 
                 const bbox = `${minLat},${minLon},${maxLat},${maxLon}`;
                 const layer = type === 'plan' ? 'GEOGRAPHICALGRIDSYSTEMS.PLANIGNV2' : 'ORTHOIMAGERY.ORTHOPHOTOS';
-                const url = `https://wxs.ign.fr/essentiels/geoportail/r/wms?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&BBOX=${bbox}&CRS=EPSG:4326&WIDTH=800&HEIGHT=600&LAYERS=${layer}&STYLES=normal&FORMAT=image/jpeg`;
+                const url = `https://data.geopf.fr/wms-r/wms?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&BBOX=${bbox}&CRS=EPSG:4326&WIDTH=800&HEIGHT=600&LAYERS=${layer}&STYLES=&FORMAT=image/jpeg`;
 
                 const res = await fetch(url);
                 if (res.ok) {
