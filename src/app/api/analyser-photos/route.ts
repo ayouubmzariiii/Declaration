@@ -47,10 +47,11 @@ export async function POST(req: Request) {
             text: custom_prompt
         });
 
-        let apiModelName = "nvidia/nemotron-nano-12b-v2-vl";
+        let apiModelName = "mistralai/ministral-14b-instruct-2512";
         let systemContent = "Tu es un expert en urbanisme français. Réponds UNIQUEMENT en JSON valide. Commence par { et finis par }.";
 
         if (model === "nemotron") {
+            apiModelName = "nvidia/nemotron-nano-12b-v2-vl";
             systemContent = "/no_think\nTu es un expert en urbanisme français. Réponds UNIQUEMENT en JSON.";
         } else if (model === "qwen") {
             apiModelName = "qwen/qwen3.5-397b-a17b";
@@ -66,7 +67,7 @@ export async function POST(req: Request) {
             content: imageContent
         });
 
-        console.log(`[API] Calling NVIDIA API (Model: ${model}, Images: ${allPhotos.length})`);
+        console.log(`[API] Calling NVIDIA API (Model: ${apiModelName}, Images: ${allPhotos.length})`);
 
         const response = await fetch("https://integrate.api.nvidia.com/v1/chat/completions", {
             method: "POST",
@@ -78,8 +79,11 @@ export async function POST(req: Request) {
             body: JSON.stringify({
                 model: apiModelName,
                 messages: messages,
-                temperature: temperature || 0.3,
-                max_tokens: max_tokens || 4096,
+                max_tokens: 2048,
+                temperature: 0.15,
+                top_p: 1.00,
+                frequency_penalty: 0.00,
+                presence_penalty: 0.00
             })
         });
 

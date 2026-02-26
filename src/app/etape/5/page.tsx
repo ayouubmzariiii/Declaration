@@ -8,7 +8,6 @@ import { Progress } from "@/components/Progress";
 export default function Step5() {
     const router = useRouter();
     const { dp } = useDP();
-    const [theme, setTheme] = useState("classique");
     const [orientation, setOrientation] = useState("portrait");
     const [downloading, setDownloading] = useState(false);
 
@@ -18,7 +17,7 @@ export default function Step5() {
             const res = await fetch("/api/telecharger-pdf", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ dp, theme, orientation }),
+                body: JSON.stringify({ dp, orientation }),
             });
 
             if (!res.ok) throw new Error("Erreur de génération du PDF");
@@ -158,54 +157,6 @@ export default function Step5() {
                                 <input type="radio" name="pdf_orientation" value="landscape" checked={orientation === "landscape"} onChange={(e) => setOrientation(e.target.value)} />
                                 <div className="theme-card">
                                     <span className="theme-name">Horizontal (Paysage)</span>
-                                </div>
-                            </label>
-                        </div>
-
-                        <p>Choisissez le thème visuel pour votre document :</p>
-
-                        <div className="theme-selector">
-                            <label className="theme-option">
-                                <input type="radio" name="pdf_theme" value="classique" checked={theme === "classique"} onChange={(e) => setTheme(e.target.value)} />
-                                <div className="theme-card">
-                                    <div className="theme-colors">
-                                        <span className="tc" style={{ background: "#000091" }}></span>
-                                        <span className="tc" style={{ background: "#e1000f" }}></span>
-                                    </div>
-                                    <span className="theme-name">Classique</span>
-                                </div>
-                            </label>
-
-                            <label className="theme-option">
-                                <input type="radio" name="pdf_theme" value="moderne" checked={theme === "moderne"} onChange={(e) => setTheme(e.target.value)} />
-                                <div className="theme-card">
-                                    <div className="theme-colors">
-                                        <span className="tc" style={{ background: "#222831" }}></span>
-                                        <span className="tc" style={{ background: "#00ADB5" }}></span>
-                                    </div>
-                                    <span className="theme-name">Moderne</span>
-                                </div>
-                            </label>
-
-                            <label className="theme-option">
-                                <input type="radio" name="pdf_theme" value="nature" checked={theme === "nature"} onChange={(e) => setTheme(e.target.value)} />
-                                <div className="theme-card">
-                                    <div className="theme-colors">
-                                        <span className="tc" style={{ background: "#2D6A4F" }}></span>
-                                        <span className="tc" style={{ background: "#D8F3DC" }}></span>
-                                    </div>
-                                    <span className="theme-name">Nature</span>
-                                </div>
-                            </label>
-
-                            <label className="theme-option">
-                                <input type="radio" name="pdf_theme" value="architecte" checked={theme === "architecte"} onChange={(e) => setTheme(e.target.value)} />
-                                <div className="theme-card">
-                                    <div className="theme-colors">
-                                        <span className="tc" style={{ background: "#14213d" }}></span>
-                                        <span className="tc" style={{ background: "#fca311" }}></span>
-                                    </div>
-                                    <span className="theme-name">Architecte</span>
                                 </div>
                             </label>
                         </div>
