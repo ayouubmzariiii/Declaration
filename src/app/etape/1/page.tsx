@@ -193,13 +193,40 @@ export default function Step1() {
                         <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '15px' }}>
                             Ces cartes seront incluses automatiquement dans votre PDF final pour les pièces DP1, DP2 et DP3 en fonction de l'adresse renseignée ci-dessus.
                         </p>
+
+                        <div className="form-group" style={{ marginBottom: '15px', borderBottom: '1px solid var(--border-color)', paddingBottom: '15px' }}>
+                            <label style={{ fontWeight: 600 }}>Choix de l'affichage du DP1 (Plan de situation) :</label>
+                            <div className="radio-group" style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '10px' }}>
+                                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                                    <input
+                                        type="radio"
+                                        name="dp1_mode"
+                                        value="classique"
+                                        checked={dp.terrain.dp1_mode === "classique"}
+                                        onChange={handleTerrainChange}
+                                    />
+                                    <strong>Mode Classique :</strong> Une seule grande carte (conforme au standard classique)
+                                </label>
+                                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                                    <input
+                                        type="radio"
+                                        name="dp1_mode"
+                                        value="detaille"
+                                        checked={dp.terrain.dp1_mode === "detaille"}
+                                        onChange={handleTerrainChange}
+                                    />
+                                    <strong>Mode Détaillé (4 vues) :</strong> Inclut le cadastre, une vue satellite proche et la photo sur rue
+                                </label>
+                            </div>
+                        </div>
+
                         <button type="button" className="btn btn-secondary" onClick={fetchMapPreview} disabled={loadingMap} style={{ marginBottom: '15px' }}>
                             {loadingMap ? "Chargement..." : "Vérifier la localisation sur la carte"}
                         </button>
 
                         {mapError && <div style={{ color: 'red', fontSize: '0.9rem', marginBottom: '10px' }}>{mapError}</div>}
 
-                        {mapPreview && (
+                        {mapPreview && dp.terrain.dp1_mode === "detaille" && (
                             <div className="map-images-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginTop: '10px' }}>
                                 <div>
                                     <strong style={{ display: 'block', fontSize: '0.9rem', marginBottom: '5px' }}>DP1 - Plan de situation (Ville)</strong>
@@ -221,6 +248,23 @@ export default function Step1() {
                                 </div>
                                 <div>
                                     <strong style={{ display: 'block', fontSize: '0.9rem', marginBottom: '5px' }}>DP2 - Plan de masse (Orthophoto)</strong>
+                                    <div style={{ position: 'relative' }}>
+                                        <img src={mapPreview.dp2} alt="DP2 Plan" style={{ width: '100%', borderRadius: '4px', border: '1px solid #ccc' }} />
+                                        <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: '20px', height: '20px', border: '2px solid red', borderRadius: '50%' }}></div>
+                                        <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: '4px', height: '4px', backgroundColor: 'red', borderRadius: '50%' }}></div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {mapPreview && dp.terrain.dp1_mode === "classique" && (
+                            <div className="map-images-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginTop: '10px' }}>
+                                <div>
+                                    <strong style={{ display: 'block', fontSize: '0.9rem', marginBottom: '5px' }}>DP1 - Plan de situation</strong>
+                                    <img src={mapPreview.dp1_1} alt="DP1 Plan" style={{ width: '100%', borderRadius: '4px', border: '1px solid #ccc' }} />
+                                </div>
+                                <div>
+                                    <strong style={{ display: 'block', fontSize: '0.9rem', marginBottom: '5px' }}>DP2 - Plan de masse</strong>
                                     <div style={{ position: 'relative' }}>
                                         <img src={mapPreview.dp2} alt="DP2 Plan" style={{ width: '100%', borderRadius: '4px', border: '1px solid #ccc' }} />
                                         <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: '20px', height: '20px', border: '2px solid red', borderRadius: '50%' }}></div>

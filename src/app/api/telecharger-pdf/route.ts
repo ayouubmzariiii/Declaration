@@ -260,13 +260,34 @@ export async function POST(req: Request) {
                     }
 
                     const imgX = margin + 1 + (boxWidth - 2 - imgWidth) / 2;
-                    page.drawImage(img, { x: imgX, y: y - height + 1 + (height - 2 - imgHeight) / 2, width: imgWidth, height: imgHeight });
+                    const imgY = y - height + 1 + (height - 2 - imgHeight) / 2;
+                    page.drawImage(img, { x: imgX, y: imgY, width: imgWidth, height: imgHeight });
 
                     // Draw a little red target reticle to show the parcel location
                     const centerX = margin + boxWidth / 2;
                     const centerY = y - height / 2;
                     page.drawCircle({ x: centerX, y: centerY, size: 4, color: rgb(1, 0, 0) });
                     page.drawCircle({ x: centerX, y: centerY, size: 20, borderColor: rgb(1, 0, 0), borderWidth: 2 });
+
+                    // Overlay: North Arrow and Address Context
+                    if (title.includes("DP1")) {
+                        // North Arrow (top right)
+                        const nsX = margin + boxWidth - 30;
+                        const nsY = y - 40;
+                        page.drawLine({ start: { x: nsX, y: nsY - 15 }, end: { x: nsX, y: nsY + 15 }, thickness: 2, color: rgb(0, 0, 0) });
+                        page.drawLine({ start: { x: nsX, y: nsY + 15 }, end: { x: nsX - 5, y: nsY + 5 }, thickness: 2, color: rgb(0, 0, 0) });
+                        page.drawLine({ start: { x: nsX, y: nsY + 15 }, end: { x: nsX + 5, y: nsY + 5 }, thickness: 2, color: rgb(0, 0, 0) });
+                        page.drawText("N", { x: nsX - 4, y: nsY + 20, size: 10, font: fontBold, color: rgb(0, 0, 0) });
+
+                        // Address & Boundaries text box (bottom left)
+                        const addressText = `Adresse: ${dp.terrain?.adresse || ''}, ${dp.terrain?.code_postal || ''} ${dp.terrain?.commune || ''}`;
+                        const limitsText = `Limites séparatives et domaine public apparents`;
+
+                        page.drawRectangle({ x: margin + 10, y: y - height + 10, width: 280, height: 40, color: rgb(1, 1, 1), opacity: 0.8 });
+                        page.drawText(addressText, { x: margin + 15, y: y - height + 35, size: 8, font: fontBold, color: rgb(0, 0, 0) });
+                        page.drawText(limitsText, { x: margin + 15, y: y - height + 20, size: 8, font: fontRegular, color: rgb(0, 0, 0) });
+                    }
+
                 } catch (e) {
                     console.error("Failed to draw IGN image", e);
                     const textWidth = fontBold.widthOfTextAtSize("ERREUR DE LECTURE CARTE", 12);
@@ -291,7 +312,7 @@ export async function POST(req: Request) {
 
             page.drawText("DP1 – Plan de situation du terrain", { x: margin, y, size: 12, font: fontBold, color: rgb(0, 0, 0) });
             y -= 15;
-            page.drawText("Localise la parcelle dans la commune et précise son environnement.", { x: margin, y, size: 9, font: fontRegular, color: rgb(0.3, 0.3, 0.3) });
+            page.drawText("Localise la parcelle dans la commune (échelle 1/500 ou 1/2000, avec nord, limites, adresse).", { x: margin, y, size: 9, font: fontRegular, color: rgb(0.3, 0.3, 0.3) });
             y -= 15;
 
             const boxWidth = pageWidth - margin * 2;
@@ -333,6 +354,14 @@ export async function POST(req: Request) {
                         if (!isPhoto) {
                             page.drawCircle({ x: qX + quadW / 2, y: qY + quadH / 2, size: 3, color: rgb(1, 0, 0) });
                             page.drawCircle({ x: qX + quadW / 2, y: qY + quadH / 2, size: 10, borderColor: rgb(1, 0, 0), borderWidth: 1.5 });
+
+                            // Draw North Arrow top right of each map quad
+                            const nsX = qX + quadW - 20;
+                            const nsY = qY + quadH - 25;
+                            page.drawLine({ start: { x: nsX, y: nsY - 8 }, end: { x: nsX, y: nsY + 8 }, thickness: 1.5, color: rgb(0, 0, 0) });
+                            page.drawLine({ start: { x: nsX, y: nsY + 8 }, end: { x: nsX - 3, y: nsY + 3 }, thickness: 1.5, color: rgb(0, 0, 0) });
+                            page.drawLine({ start: { x: nsX, y: nsY + 8 }, end: { x: nsX + 3, y: nsY + 3 }, thickness: 1.5, color: rgb(0, 0, 0) });
+                            page.drawText("N", { x: nsX - 3, y: nsY + 12, size: 8, font: fontBold, color: rgb(0, 0, 0) });
                         }
                     } catch (e) {
                         console.error("erreur de rendu image/quad", e);
@@ -340,8 +369,13 @@ export async function POST(req: Request) {
                 }
 
                 const textW = fontRegular.widthOfTextAtSize(title, 8);
-                page.drawRectangle({ x: qX + 8, y: qY + 8, width: textW + 8, height: 14, color: rgb(1, 1, 1), borderColor: rgb(0, 0, 0), borderWidth: 0.5 });
+                page.drawRectangle({ x: qX + 8, y: qY + 8, width: textW + 8, height: 14, color: rgb(1, 1, 1), opacity: 0.8, borderColor: rgb(0, 0, 0), borderWidth: 0.5 });
                 page.drawText(title, { x: qX + 12, y: qY + 12, size: 8, font: fontRegular, color: rgb(0, 0, 0) });
+
+                if (title.includes("1/25000") || title.includes("1/1700")) {
+                    page.drawRectangle({ x: qX + 8, y: qY + 26, width: 230, height: 14, color: rgb(1, 1, 1), opacity: 0.8 });
+                    page.drawText(`Adresse: ${dp.terrain?.adresse || ''}`, { x: qX + 12, y: qY + 30, size: 7, font: fontRegular, color: rgb(0, 0, 0) });
+                }
             };
 
             const q1X = margin; const q1Y = y - quadH;
@@ -374,7 +408,11 @@ export async function POST(req: Request) {
         // DP1 Plan de situation
         page = pdfDoc.addPage([pageWidth, pageHeight]);
         drawHeader();
-        await drawDP1QuadBox(imgDP1_1, imgDP1_2, imgDP1_3, dp.photo_sets?.[0]?.base64_avant || null);
+        if (dp.terrain?.dp1_mode === "classique") {
+            await drawIgnMapBox("DP1 – Plan de situation du terrain", "Localise la parcelle dans la commune (échelle 1/500 ou 1/2000, avec nord, limites, adresse).", imgDP1_1, 500);
+        } else {
+            await drawDP1QuadBox(imgDP1_1, imgDP1_2, imgDP1_3, dp.photo_sets?.[0]?.base64_avant || null);
+        }
 
         // DP2 Plan de masse
         page = pdfDoc.addPage([pageWidth, pageHeight]);

@@ -24,6 +24,7 @@ export interface Terrain {
   est_lotissement: boolean;
   est_zone_protegee: boolean;
   est_monument_historique: boolean;
+  dp1_mode: "classique" | "detaille";
 }
 
 export interface TravauxDetail {
@@ -135,6 +136,7 @@ export function getInitialDP(): DeclarationPrealable {
       est_lotissement: false,
       est_zone_protegee: false,
       est_monument_historique: false,
+      dp1_mode: "detaille",
     },
     travaux: {
       type_travaux: "Modification de l'aspect extérieur",
