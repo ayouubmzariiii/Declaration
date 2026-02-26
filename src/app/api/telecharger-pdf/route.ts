@@ -183,17 +183,121 @@ export async function POST(req: Request) {
         drawField("Type de travaux :", dp.travaux?.type_travaux || '');
         drawField("Description courte :", dp.travaux?.description_courte || '');
 
+        // --- GEOLOCATION FOR MAPS ---
+        const geocodeAddress = async (address: string, city: string) => {
+            if (!address || !city) return null;
+            try {
+                const query = encodeURIComponent(`${address}, ${city}, France`);
+                const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${query}`, {
+                    headers: { "User-Agent": "DeclarationPrealableApp/1.0", "Accept-Language": "fr" }
+                });
+                const data = await res.json();
+                if (data && data.length > 0) {
+                    return { lat: parseFloat(data[0].lat), lon: parseFloat(data[0].lon) };
+                }
+            } catch (e) {
+                console.error("Geocoding error", e);
+            }
+            return null;
+        };
+
+        const getIgnMap = async (lat: number, lon: number, sizeMeters: number, type: 'plan' | 'satellite') => {
+            try {
+                const latDiff = (sizeMeters / 2) / 111320;
+                const lonDiff = (sizeMeters / 2) / (111320 * Math.cos(lat * Math.PI / 180));
+
+                const minLat = lat - latDiff;
+                const maxLat = lat + latDiff;
+                const minLon = lon - lonDiff;
+                const maxLon = lon + lonDiff;
+
+                const bbox = `${minLat},${minLon},${maxLat},${maxLon}`;
+                const layer = type === 'plan' ? 'GEOGRAPHICALGRIDSYSTEMS.PLANIGNV2' : 'ORTHOIMAGERY.ORTHOPHOTOS';
+                const url = `https://wxs.ign.fr/essentiels/geoportail/r/wms?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&BBOX=${bbox}&CRS=EPSG:4326&WIDTH=800&HEIGHT=600&LAYERS=${layer}&STYLES=normal&FORMAT=image/jpeg`;
+
+                const res = await fetch(url);
+                if (res.ok) {
+                    const arrayBuffer = await res.arrayBuffer();
+                    return Buffer.from(arrayBuffer).toString('base64');
+                }
+            } catch (e) {
+                console.error("IGN WMS error", e);
+            }
+            return null;
+        };
+
+        const drawIgnMapBox = async (title: string, desc: string, base64Jpg: string | null, height: number = 400) => {
+            if (y < margin + height + 50) {
+                page = pdfDoc.addPage([pageWidth, pageHeight]);
+                drawHeader();
+            }
+
+            page.drawText(title, { x: margin, y, size: 12, font: fontBold, color: rgb(0, 0, 0) });
+            y -= 15;
+            page.drawText(desc, { x: margin, y, size: 9, font: fontRegular, color: rgb(0.3, 0.3, 0.3) });
+            y -= 15;
+
+            const boxWidth = pageWidth - margin * 2;
+            page.drawRectangle({ x: margin, y: y - height, width: boxWidth, height: height, borderColor: rgb(0, 0, 0), borderWidth: 1 });
+
+            if (base64Jpg) {
+                try {
+                    const imageBytes = Uint8Array.from(atob(base64Jpg), c => c.charCodeAt(0));
+                    const img = await pdfDoc.embedJpg(imageBytes);
+
+                    let imgWidth = boxWidth;
+                    let imgHeight = (img.height / img.width) * imgWidth;
+
+                    if (imgHeight > height) {
+                        imgHeight = height;
+                        imgWidth = (img.width / img.height) * imgHeight;
+                    }
+
+                    const imgX = margin + (boxWidth - imgWidth) / 2;
+                    page.drawImage(img, { x: imgX, y: y - height + (height - imgHeight) / 2, width: imgWidth, height: imgHeight });
+
+                    // Draw a little red target reticle to show the parcel location
+                    const centerX = margin + boxWidth / 2;
+                    const centerY = y - height / 2;
+                    page.drawCircle({ x: centerX, y: centerY, size: 4, color: rgb(1, 0, 0) });
+                    page.drawCircle({ x: centerX, y: centerY, size: 20, borderColor: rgb(1, 0, 0), borderWidth: 2 });
+                } catch (e) {
+                    console.error("Failed to draw IGN image", e);
+                    const textWidth = fontBold.widthOfTextAtSize("ERREUR DE LECTURE CARTE", 12);
+                    page.drawText("ERREUR DE LECTURE CARTE", { x: (pageWidth - textWidth) / 2, y: y - height / 2, size: 12, font: fontBold, color: rgb(0.5, 0.5, 0.5) });
+                }
+            } else {
+                const textWidth = fontBold.widthOfTextAtSize("PIÈCE À JOINDRE DANS CE CADRE", 12);
+                page.drawText("PIÈCE À JOINDRE DANS CE CADRE", { x: (pageWidth - textWidth) / 2, y: y - height / 2, size: 12, font: fontBold, color: rgb(0.5, 0.5, 0.5) });
+            }
+
+            y -= height + 30;
+        };
+
         // --- PIÈCES OBLIGATOIRES ---
+        const coords = await geocodeAddress(dp.terrain?.adresse || "", dp.terrain?.commune || "");
+        let imgDP1 = null;
+        let imgDP2 = null;
+
+        if (coords) {
+            imgDP1 = await getIgnMap(coords.lat, coords.lon, 800, 'plan');      // DP1: 800m range
+            imgDP2 = await getIgnMap(coords.lat, coords.lon, 100, 'satellite'); // DP2/DP3: 100m range
+        }
+
+        // DP1 Plan de situation
+        page = pdfDoc.addPage([pageWidth, pageHeight]);
+        drawHeader();
+        await drawIgnMapBox("DP1 – Plan de situation du terrain", "Localise la parcelle dans la commune (échelle 1/500 ou 1/2000, avec nord, limites, adresse). Dessin simple généré par Géoportail.", imgDP1, 500);
 
         // DP2 Plan de masse
         page = pdfDoc.addPage([pageWidth, pageHeight]);
         drawHeader();
-        drawPlaceholderBox("DP2 – Plan de masse", "Vue aérienne du terrain avec implantation des bâtiments existants, du projet, distances aux limites et accès.", 500);
+        await drawIgnMapBox("DP2 – Plan de masse des constructions à édifier ou modifier", "Implantation précise sur le terrain (échelle 1/100-1/200) : Plan vue du dessus, orthophoto générée par Géoportail.", imgDP2, 500);
 
         // DP3 Plan en coupe
         page = pdfDoc.addPage([pageWidth, pageHeight]);
         drawHeader();
-        drawPlaceholderBox("DP3 – Plan en coupe", "Obligatoire si modification du relief, création d'une terrasse surélevée, ou construction modifiant le profil du terrain.", 500);
+        await drawIgnMapBox("DP3 – Plan en coupe du terrain et de la construction", "Coupe verticale. Si insuffisant, complétez ce document avec une coupe dessinée.", imgDP2, 500);
 
         // DP4 Notice descriptive
         page = pdfDoc.addPage([pageWidth, pageHeight]);
