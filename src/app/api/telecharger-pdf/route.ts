@@ -369,12 +369,53 @@ export async function POST(req: Request) {
                 }
 
                 const textW = fontRegular.widthOfTextAtSize(title, 8);
+
+                // Draw title box
                 page.drawRectangle({ x: qX + 8, y: qY + 8, width: textW + 8, height: 14, color: rgb(1, 1, 1), opacity: 0.8, borderColor: rgb(0, 0, 0), borderWidth: 0.5 });
                 page.drawText(title, { x: qX + 12, y: qY + 12, size: 8, font: fontRegular, color: rgb(0, 0, 0) });
 
+                // Draw scale bar inside title box if it's a map
+                if (!isPhoto) {
+                    let maxMeters = 0;
+                    let halfMeters = 0;
+                    let barWidth = 100;
+
+                    if (title.includes("1/25000")) {
+                        maxMeters = 1000;
+                        halfMeters = 500;
+                        barWidth = 80;
+                    } else if (title.includes("1/1700") && title.includes("cadastral")) {
+                        maxMeters = 50;
+                        halfMeters = 25;
+                        barWidth = 60;
+                    } else if (title.includes("1/1700")) {
+                        maxMeters = 50;
+                        halfMeters = 25;
+                        barWidth = 60;
+                    }
+
+                    if (maxMeters > 0) {
+                        const sbX = qX + 12;
+                        const sbY = qY + 28;
+                        const segmentW = barWidth / 2;
+
+                        // Draw scale background box
+                        page.drawRectangle({ x: sbX - 4, y: sbY - 4, width: barWidth + 8, height: 20, color: rgb(1, 1, 1), opacity: 0.8, borderColor: rgb(0, 0, 0), borderWidth: 0.2 });
+
+                        // Draw scale segments
+                        page.drawRectangle({ x: sbX, y: sbY, width: segmentW, height: 4, color: rgb(0, 0, 0), borderColor: rgb(0, 0, 0), borderWidth: 1 });
+                        page.drawRectangle({ x: sbX + segmentW, y: sbY, width: segmentW, height: 4, color: rgb(1, 1, 1), borderColor: rgb(0, 0, 0), borderWidth: 1 });
+
+                        // Draw scale text
+                        page.drawText("0", { x: sbX - 2, y: sbY + 6, size: 6, font: fontRegular, color: rgb(0, 0, 0) });
+                        page.drawText(`${halfMeters} m`, { x: sbX + segmentW - 6, y: sbY + 6, size: 6, font: fontRegular, color: rgb(0, 0, 0) });
+                        page.drawText(`${maxMeters} m`, { x: sbX + barWidth - 6, y: sbY + 6, size: 6, font: fontRegular, color: rgb(0, 0, 0) });
+                    }
+                }
+
                 if (title.includes("1/25000") || title.includes("1/1700")) {
-                    page.drawRectangle({ x: qX + 8, y: qY + 26, width: 230, height: 14, color: rgb(1, 1, 1), opacity: 0.8 });
-                    page.drawText(`Adresse: ${dp.terrain?.adresse || ''}`, { x: qX + 12, y: qY + 30, size: 7, font: fontRegular, color: rgb(0, 0, 0) });
+                    page.drawRectangle({ x: qX + 8, y: qY + 48, width: 230, height: 14, color: rgb(1, 1, 1), opacity: 0.8 });
+                    page.drawText(`Adresse: ${dp.terrain?.adresse || ''}`, { x: qX + 12, y: qY + 52, size: 7, font: fontRegular, color: rgb(0, 0, 0) });
                 }
             };
 
