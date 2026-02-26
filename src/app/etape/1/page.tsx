@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useDP } from "@/context/DPContext";
 import { Progress } from "@/components/Progress";
@@ -8,6 +8,34 @@ import { Progress } from "@/components/Progress";
 export default function Step1() {
     const router = useRouter();
     const { dp, updateDP } = useDP();
+    const [mapPreview, setMapPreview] = useState<{ dp1: string, dp2_dp3: string } | null>(null);
+    const [loadingMap, setLoadingMap] = useState(false);
+    const [mapError, setMapError] = useState("");
+
+    const fetchMapPreview = async () => {
+        if (!dp.terrain.adresse || !dp.terrain.commune) {
+            setMapError("Veuillez remplir l'adresse et la commune du terrain d'abord.");
+            return;
+        }
+
+        setLoadingMap(true);
+        setMapError("");
+        setMapPreview(null);
+
+        try {
+            const res = await fetch(`/api/preview-maps?address=${encodeURIComponent(dp.terrain.adresse)}&city=${encodeURIComponent(dp.terrain.commune)}`);
+            const data = await res.json();
+            if (data.success) {
+                setMapPreview(data.maps);
+            } else {
+                setMapError("Impossible de trouver cette adresse sur la carte.");
+            }
+        } catch (e) {
+            setMapError("Erreur réseau lors du chargement de la carte.");
+        } finally {
+            setLoadingMap(false);
+        }
+    };
 
     const handleDemandeurChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
@@ -158,6 +186,35 @@ export default function Step1() {
                                 </label>
                             </div>
                         </div>
+                    </div>
+
+                    <div className="map-preview-section" style={{ marginTop: '20px', padding: '15px', background: 'var(--bg-card)', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
+                        <h4 style={{ marginBottom: '10px' }}>🗺️ Aperçu des plans générés par Géoportail</h4>
+                        <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '15px' }}>
+                            Ces cartes seront incluses automatiquement dans votre PDF final pour les pièces DP1, DP2 et DP3 en fonction de l'adresse renseignée ci-dessus.
+                        </p>
+                        <button type="button" className="btn btn-secondary" onClick={fetchMapPreview} disabled={loadingMap} style={{ marginBottom: '15px' }}>
+                            {loadingMap ? "Chargement..." : "Vérifier la localisation sur la carte"}
+                        </button>
+
+                        {mapError && <div style={{ color: 'red', fontSize: '0.9rem', marginBottom: '10px' }}>{mapError}</div>}
+
+                        {mapPreview && (
+                            <div className="map-images-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginTop: '10px' }}>
+                                <div>
+                                    <strong style={{ display: 'block', fontSize: '0.9rem', marginBottom: '5px' }}>DP1 - Plan de situation</strong>
+                                    <img src={mapPreview.dp1} alt="DP1 Plan" style={{ width: '100%', borderRadius: '4px', border: '1px solid #ccc' }} />
+                                </div>
+                                <div>
+                                    <strong style={{ display: 'block', fontSize: '0.9rem', marginBottom: '5px' }}>DP2/DP3 - Plan de masse/coupe</strong>
+                                    <div style={{ position: 'relative' }}>
+                                        <img src={mapPreview.dp2_dp3} alt="DP2 Plan" style={{ width: '100%', borderRadius: '4px', border: '1px solid #ccc' }} />
+                                        <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: '20px', height: '20px', border: '2px solid red', borderRadius: '50%' }}></div>
+                                        <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: '4px', height: '4px', backgroundColor: 'red', borderRadius: '50%' }}></div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </div>
 
