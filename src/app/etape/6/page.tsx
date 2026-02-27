@@ -39,6 +39,34 @@ export default function Step6() {
         }
     };
 
+    const handleCerfaDownload = async () => {
+        try {
+            setDownloading(true);
+            const res = await fetch("/api/generate-cerfa", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ dp }),
+            });
+
+            if (!res.ok) throw new Error("Erreur de génération du Cerfa PDF");
+
+            const blob = await res.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = `cerfa_${dp.reference}.pdf`;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            window.URL.revokeObjectURL(url);
+        } catch (err) {
+            console.error(err);
+            alert("Erreur lors de la création du Cerfa. Veuillez réessayer.");
+        } finally {
+            setDownloading(false);
+        }
+    };
+
     return (
         <div className="wizard-container">
             <Progress step={6} totalSteps={6} />
@@ -170,15 +198,27 @@ export default function Step6() {
                             </label>
                         </div>
 
-                        <button
-                            type="button"
-                            className="btn btn-primary btn-lg"
-                            style={{ opacity: downloading ? "0.7" : "1" }}
-                            onClick={handleDownload}
-                            disabled={downloading}
-                        >
-                            {downloading ? "⏳ Génération en cours..." : "Télécharger le PDF →"}
-                        </button>
+                        <div style={{ display: 'flex', gap: '15px', justifyContent: 'center', marginTop: '10px' }}>
+                            <button
+                                type="button"
+                                className="btn btn-secondary btn-lg"
+                                style={{ opacity: downloading ? "0.7" : "1" }}
+                                onClick={handleCerfaDownload}
+                                disabled={downloading}
+                            >
+                                {downloading ? "⏳..." : "📄 Télécharger le CERFA"}
+                            </button>
+
+                            <button
+                                type="button"
+                                className="btn btn-primary btn-lg"
+                                style={{ opacity: downloading ? "0.7" : "1" }}
+                                onClick={handleDownload}
+                                disabled={downloading}
+                            >
+                                {downloading ? "⏳ Génération en cours..." : "Télécharger le Dossier →"}
+                            </button>
+                        </div>
                     </div>
                 </div>
 
