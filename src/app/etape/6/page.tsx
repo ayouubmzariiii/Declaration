@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useDP } from "@/context/DPContext";
 import { Progress } from "@/components/Progress";
@@ -8,6 +8,56 @@ import { Progress } from "@/components/Progress";
 export default function Step6() {
     const router = useRouter();
     const { dp, updateDP } = useDP();
+
+    useEffect(() => {
+        let updates: any = {};
+        let hasUpdates = false;
+
+        // Auto-fill Location from Demandeur City
+        if (!dp.cerfa?.lieu_signature && dp.demandeur?.ville) {
+            updates.lieu_signature = dp.demandeur.ville;
+            hasUpdates = true;
+        }
+
+        // Auto-fill Denomination Sociale if Demandeur is a Société
+        if (!dp.cerfa?.denomination_sociale && dp.demandeur?.civilite === "Société" && dp.demandeur?.nom) {
+            updates.denomination_sociale = dp.demandeur.nom;
+            hasUpdates = true;
+        }
+
+        // Auto-fill Tax Surfaces from Travaux Surfaces
+        let fiscUpdates: any = {};
+        let hasFiscUpdates = false;
+
+        if (dp.cerfa?.fiscalite?.surface_taxable_existante === 0 && dp.travaux?.surface_plancher_existante) {
+            fiscUpdates.surface_taxable_existante = dp.travaux.surface_plancher_existante;
+            hasFiscUpdates = true;
+        }
+
+        if (dp.cerfa?.fiscalite?.surface_taxable_creee === 0 && dp.travaux?.surface_plancher_creee) {
+            fiscUpdates.surface_taxable_creee = dp.travaux.surface_plancher_creee;
+            hasFiscUpdates = true;
+        }
+
+        if (hasFiscUpdates) {
+            updates.fiscalite = {
+                ...(dp.cerfa?.fiscalite || {}),
+                ...fiscUpdates
+            };
+            hasUpdates = true;
+        }
+
+        if (hasUpdates) {
+            updateDP(prev => ({
+                ...prev,
+                cerfa: {
+                    ...prev.cerfa,
+                    ...updates
+                }
+            }));
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     // Reusable handler for top-level cerfa fields
     const handleCerfaChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -95,6 +145,7 @@ export default function Step6() {
                                 name="nom"
                                 value={dp.cerfa?.co_demandeur?.nom || ""}
                                 onChange={(e) => handleNestedChange(e, 'co_demandeur')}
+                                placeholder="ex: Martin"
                             />
                         </div>
                         <div className="form-group">
@@ -105,6 +156,7 @@ export default function Step6() {
                                 name="prenom"
                                 value={dp.cerfa?.co_demandeur?.prenom || ""}
                                 onChange={(e) => handleNestedChange(e, 'co_demandeur')}
+                                placeholder="ex: Marie"
                             />
                         </div>
                     </div>
@@ -116,6 +168,7 @@ export default function Step6() {
                             name="adresse"
                             value={dp.cerfa?.co_demandeur?.adresse || ""}
                             onChange={(e) => handleNestedChange(e, 'co_demandeur')}
+                            placeholder="ex: 12 Rue de la République"
                         />
                     </div>
                     <div className="form-group-row">
@@ -127,6 +180,7 @@ export default function Step6() {
                                 name="code_postal"
                                 value={dp.cerfa?.co_demandeur?.code_postal || ""}
                                 onChange={(e) => handleNestedChange(e, 'co_demandeur')}
+                                placeholder="ex: 75001"
                             />
                         </div>
                         <div className="form-group">
@@ -137,6 +191,7 @@ export default function Step6() {
                                 name="ville"
                                 value={dp.cerfa?.co_demandeur?.ville || ""}
                                 onChange={(e) => handleNestedChange(e, 'co_demandeur')}
+                                placeholder="ex: Paris"
                             />
                         </div>
                     </div>
@@ -233,6 +288,7 @@ export default function Step6() {
                                 name="surface_taxable_existante"
                                 value={dp.cerfa?.fiscalite?.surface_taxable_existante || 0}
                                 onChange={(e) => handleNestedChange(e, 'fiscalite')}
+                                placeholder="ex: 95"
                             />
                         </div>
                         <div className="form-group">
@@ -244,6 +300,7 @@ export default function Step6() {
                                 name="surface_taxable_creee"
                                 value={dp.cerfa?.fiscalite?.surface_taxable_creee || 0}
                                 onChange={(e) => handleNestedChange(e, 'fiscalite')}
+                                placeholder="ex: 0"
                             />
                         </div>
                     </div>
@@ -255,6 +312,7 @@ export default function Step6() {
                             name="stationnement_cree"
                             value={dp.cerfa?.fiscalite?.stationnement_cree || 0}
                             onChange={(e) => handleNestedChange(e, 'fiscalite')}
+                            placeholder="ex: 0"
                         />
                     </div>
                 </div>
@@ -286,6 +344,7 @@ export default function Step6() {
                                     value={dp.cerfa?.architecte?.nom || ""}
                                     onChange={(e) => handleNestedChange(e, 'architecte')}
                                     required={dp.cerfa?.architecte?.recours}
+                                    placeholder="ex: Dupont"
                                 />
                             </div>
                             <div className="form-group">
@@ -297,6 +356,7 @@ export default function Step6() {
                                     value={dp.cerfa?.architecte?.numero || ""}
                                     onChange={(e) => handleNestedChange(e, 'architecte')}
                                     required={dp.cerfa?.architecte?.recours}
+                                    placeholder="ex: 123456"
                                 />
                             </div>
                         </div>

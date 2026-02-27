@@ -269,7 +269,7 @@ export function getInitialDP(): DeclarationPrealable {
       "DP11": { nom: "Notice descriptive", fourni: true },
     },
     cerfa: {
-      date_signature: new Date(new Date().setDate(new Date().getDate() + 1)).toLocaleDateString('fr-FR'), // Tomorrow's date
+      date_signature: new Date().toLocaleDateString('fr-FR'), // Today's date
       lieu_signature: "Paris",
       denomination_sociale: "SOCIETE DUPONT",
       siret: "12345678901234",
