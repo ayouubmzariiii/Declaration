@@ -160,7 +160,7 @@ export default function Step5() {
 
                 <div className="form-actions">
                     <button type="button" className="btn btn-secondary" onClick={() => router.push("/etape/4")}>← Retour</button>
-                    <button type="submit" className="btn btn-primary">Passer au résumé →</button>
+                    <button type="submit" className="btn btn-primary">Continuer vers les infos Cerfa →</button>
                 </div>
             </form>
         </div>

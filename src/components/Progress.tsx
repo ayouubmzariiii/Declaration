@@ -7,6 +7,7 @@ export function Progress({ step, totalSteps }: { step: number; totalSteps: numbe
         { label: "Photos", icon: "📷" },
         { label: "Notice", icon: "🤖" },
         { label: "Plans", icon: "🏗️" },
+        { label: "Cerfa", icon: "📑" },
         { label: "Export", icon: "📄" }
     ];
 

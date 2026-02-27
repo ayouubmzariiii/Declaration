@@ -78,7 +78,17 @@ export async function generateCerfaPDF(dp: DeclarationPrealable): Promise<Uint8A
     }
 
     // Form Date and Signature location (E1L_lieu, E1D_date)
-    setTextField('E1D_date', dp.date_creation || new Date().toLocaleDateString('fr-FR'));
+    if (dp.cerfa) {
+        setTextField('E1D_date', dp.cerfa.date_signature);
+        setTextField('E1L_lieu', dp.cerfa.lieu_signature);
+        setTextField('D2D_denomination', dp.cerfa.denomination_sociale);
+        setTextField('D4MD1_denomination', dp.cerfa.denomination_sociale);
+        setTextField('D2S_SIRET', dp.cerfa.siret);
+        setTextField('D4MS1_siret', dp.cerfa.siret);
+        setTextField('X1P_precisions', dp.cerfa.nature_precisions);
+    } else {
+        setTextField('E1D_date', dp.date_creation || new Date().toLocaleDateString('fr-FR'));
+    }
 
     // Set the "Acceptation" box
     checkField('D5A_acceptation', true);

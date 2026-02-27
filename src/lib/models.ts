@@ -100,6 +100,14 @@ export interface PiecesJointes {
   };
 }
 
+export interface CerfaInfos {
+  date_signature: string;
+  lieu_signature: string;
+  denomination_sociale?: string;
+  siret?: string;
+  nature_precisions?: string;
+}
+
 export interface DeclarationPrealable {
   reference: string;
   date_creation: string;
@@ -111,6 +119,7 @@ export interface DeclarationPrealable {
   photo_sets: PhotoSet[];
   plans: PlansExterieurs;
   pieces_jointes: PiecesJointes;
+  cerfa: CerfaInfos;
 }
 
 export function getInitialDP(): DeclarationPrealable {
@@ -231,5 +240,12 @@ export function getInitialDP(): DeclarationPrealable {
       "DP8": { nom: "Photographie environnement lointain (état projeté)", fourni: false },
       "DP11": { nom: "Notice descriptive", fourni: true },
     },
+    cerfa: {
+      date_signature: new Date(new Date().setDate(new Date().getDate() + 1)).toLocaleDateString('fr-FR'), // Tomorrow's date
+      lieu_signature: "Paris",
+      denomination_sociale: "SOCIETE DUPONT",
+      siret: "12345678901234",
+      nature_precisions: "Remplacement de menuiseries à l'identique",
+    }
   };
 }
