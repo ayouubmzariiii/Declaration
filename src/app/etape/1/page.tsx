@@ -54,6 +54,14 @@ export default function Step1() {
         }));
     };
 
+    const handleDemandeurCheckbox = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, checked } = e.target;
+        updateDP((prev) => ({
+            ...prev,
+            demandeur: { ...prev.demandeur, [name]: checked },
+        }));
+    };
+
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         router.push("/etape/2");
@@ -77,11 +85,11 @@ export default function Step1() {
                     <h3 className="form-section-title">1. Identité du déclarant</h3>
                     <div className="form-grid">
                         <div className="form-group">
-                            <label htmlFor="civilite">Civilité</label>
+                            <label htmlFor="civilite">Vous êtes</label>
                             <select name="civilite" id="civilite" value={dp.demandeur.civilite} onChange={handleDemandeurChange}>
-                                <option value="M.">Monsieur</option>
-                                <option value="Mme">Madame</option>
-                                <option value="Société">Société / Personne morale</option>
+                                <option value="M.">Un particulier - Monsieur</option>
+                                <option value="Mme">Un particulier - Madame</option>
+                                <option value="Société">Une personne morale (Société)</option>
                             </select>
                         </div>
                         <div className="form-group">
@@ -93,25 +101,114 @@ export default function Step1() {
                                 <option value="Autre">Autre</option>
                             </select>
                         </div>
-                        <div className="form-group">
-                            <label htmlFor="nom">Nom</label>
-                            <input type="text" name="nom" id="nom" required value={dp.demandeur.nom} onChange={handleDemandeurChange} />
+
+                        {/* Personne physique fields */}
+                        {dp.demandeur.civilite !== "Société" && (
+                            <>
+                                <div className="form-group">
+                                    <label htmlFor="nom">Nom</label>
+                                    <input type="text" name="nom" id="nom" required value={dp.demandeur.nom} onChange={handleDemandeurChange} />
+                                </div>
+                                <div className="form-group">
+                                    <label htmlFor="prenom">Prénom</label>
+                                    <input type="text" name="prenom" id="prenom" required value={dp.demandeur.prenom} onChange={handleDemandeurChange} />
+                                </div>
+                                <div className="form-group">
+                                    <label htmlFor="date_naissance">Date de naissance</label>
+                                    <input type="text" placeholder="JJ/MM/AAAA" name="date_naissance" id="date_naissance" required value={dp.demandeur.date_naissance} onChange={handleDemandeurChange} />
+                                </div>
+                                <div className="form-group">
+                                    <label htmlFor="lieu_naissance">Commune de naissance</label>
+                                    <input type="text" name="lieu_naissance" id="lieu_naissance" required value={dp.demandeur.lieu_naissance} onChange={handleDemandeurChange} />
+                                </div>
+                                <div className="form-group">
+                                    <label htmlFor="departement_naissance">Département de naissance</label>
+                                    <input type="text" placeholder="ex: 75" name="departement_naissance" id="departement_naissance" value={dp.demandeur.departement_naissance || ""} onChange={handleDemandeurChange} />
+                                </div>
+                                <div className="form-group">
+                                    <label htmlFor="pays_naissance">Pays de naissance</label>
+                                    <input type="text" name="pays_naissance" id="pays_naissance" value={dp.demandeur.pays_naissance || ""} onChange={handleDemandeurChange} />
+                                </div>
+                            </>
+                        )}
+
+                        {/* Personne morale fields */}
+                        {dp.demandeur.civilite === "Société" && (
+                            <>
+                                <div className="form-group">
+                                    <label htmlFor="nom">Dénomination Sociale</label>
+                                    <input type="text" name="nom" id="nom" required value={dp.demandeur.nom} onChange={handleDemandeurChange} placeholder="Nom de l'entreprise" />
+                                </div>
+                                <div className="form-group">
+                                    <label htmlFor="type_societe">Type de société</label>
+                                    <input type="text" name="type_societe" id="type_societe" value={dp.demandeur.type_societe || ""} onChange={handleDemandeurChange} placeholder="SA, SCI, SARL..." />
+                                </div>
+                                <div className="form-group form-group-full">
+                                    <strong style={{ display: 'block', marginBottom: '8px' }}>Représentant de la personne morale :</strong>
+                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '15px' }}>
+                                        <select name="representant_civilite" value={dp.demandeur.representant_civilite || "Monsieur"} onChange={handleDemandeurChange}>
+                                            <option value="Monsieur">Monsieur</option>
+                                            <option value="Madame">Madame</option>
+                                        </select>
+                                        <input type="text" name="representant_nom" placeholder="Nom" value={dp.demandeur.representant_nom || ""} onChange={handleDemandeurChange} />
+                                        <input type="text" name="representant_prenom" placeholder="Prénom" value={dp.demandeur.representant_prenom || ""} onChange={handleDemandeurChange} />
+                                    </div>
+                                </div>
+                            </>
+                        )}
+
+                        <div className="form-group form-group-full">
+                            <label htmlFor="adresse_demandeur">Adresse de correspondance (N° et Voie, Lieu-dit...)</label>
+                            <input type="text" name="adresse" id="adresse_demandeur" required value={dp.demandeur.adresse} onChange={handleDemandeurChange} />
                         </div>
                         <div className="form-group">
-                            <label htmlFor="prenom">Prénom</label>
-                            <input type="text" name="prenom" id="prenom" required value={dp.demandeur.prenom} onChange={handleDemandeurChange} />
+                            <label htmlFor="code_postal">Code Postal</label>
+                            <input type="text" name="code_postal" id="code_postal" required value={dp.demandeur.code_postal} onChange={handleDemandeurChange} />
                         </div>
                         <div className="form-group">
-                            <label htmlFor="email">Email de contact</label>
-                            <input type="email" name="email" id="email" required value={dp.demandeur.email} onChange={handleDemandeurChange} />
+                            <label htmlFor="ville">Localité / Ville</label>
+                            <input type="text" name="ville" id="ville" required value={dp.demandeur.ville} onChange={handleDemandeurChange} />
                         </div>
+
+                        <div className="form-group form-group-full checkbox-group" style={{ marginTop: '10px' }}>
+                            <label className="checkbox-label" style={{ fontWeight: 500 }}>
+                                <input type="checkbox" name="est_etranger" checked={dp.demandeur.est_etranger || false} onChange={handleDemandeurCheckbox} />
+                                Le déclarant habite à l'étranger
+                            </label>
+                        </div>
+
+                        {dp.demandeur.est_etranger && (
+                            <>
+                                <div className="form-group">
+                                    <label htmlFor="pays_adresse">Pays</label>
+                                    <input type="text" name="pays_adresse" id="pays_adresse" value={dp.demandeur.pays_adresse || ""} onChange={handleDemandeurChange} />
+                                </div>
+                                <div className="form-group">
+                                    <label htmlFor="division_territoriale">Division territoriale</label>
+                                    <input type="text" name="division_territoriale" id="division_territoriale" value={dp.demandeur.division_territoriale || ""} onChange={handleDemandeurChange} placeholder="État, Province..." />
+                                </div>
+                            </>
+                        )}
+
                         <div className="form-group">
                             <label htmlFor="telephone">Téléphone</label>
-                            <input type="tel" name="telephone" id="telephone" required value={dp.demandeur.telephone} onChange={handleDemandeurChange} />
+                            <div style={{ display: 'flex', gap: '10px' }}>
+                                {dp.demandeur.est_etranger && (
+                                    <input type="text" name="indicatif_telephone" placeholder="Indicatif" style={{ width: '100px' }} value={dp.demandeur.indicatif_telephone || ""} onChange={handleDemandeurChange} />
+                                )}
+                                <input type="tel" name="telephone" id="telephone" style={{ flex: 1 }} required value={dp.demandeur.telephone} onChange={handleDemandeurChange} />
+                            </div>
                         </div>
-                        <div className="form-group form-group-full">
-                            <label htmlFor="adresse_demandeur">Adresse de correspondance</label>
-                            <input type="text" name="adresse" id="adresse_demandeur" placeholder="N° et libellé de la voie" required value={dp.demandeur.adresse} onChange={handleDemandeurChange} />
+                        <div className="form-group">
+                            <label htmlFor="email">Adresse électronique</label>
+                            <input type="email" name="email" id="email" required value={dp.demandeur.email} onChange={handleDemandeurChange} />
+                        </div>
+
+                        <div className="form-group form-group-full checkbox-group">
+                            <label className="checkbox-label" style={{ fontSize: '0.85rem', color: 'var(--text-color)' }}>
+                                <input type="checkbox" name="accepte_demarches_electroniques" checked={dp.demandeur.accepte_demarches_electroniques || false} onChange={handleDemandeurCheckbox} />
+                                J'accepte de recevoir à l'adresse électronique communiquée les réponses de l'administration et notamment par lettre recommandée électronique ou par un autre procédé électronique équivalent les documents habituellement notifiés par lettre recommandée avec accusé de réception.
+                            </label>
                         </div>
                     </div>
                 </div>

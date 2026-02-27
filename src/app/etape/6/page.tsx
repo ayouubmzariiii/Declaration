@@ -136,63 +136,120 @@ export default function Step6() {
                 <div className="form-section">
                     <h3 className="form-section-title">Co-demandeur (Optionnel)</h3>
                     <p className="form-description" style={{ marginBottom: "15px" }}>Si le projet est porté par plusieurs personnes.</p>
-                    <div className="form-group-row">
+
+                    <div className="form-grid">
                         <div className="form-group">
-                            <label htmlFor="co_nom">Nom du co-demandeur</label>
-                            <input
-                                type="text"
-                                id="co_nom"
-                                name="nom"
-                                value={dp.cerfa?.co_demandeur?.nom || ""}
-                                onChange={(e) => handleNestedChange(e, 'co_demandeur')}
-                                placeholder="ex: Martin"
-                            />
+                            <label htmlFor="co_civilite">Vous êtes</label>
+                            <select
+                                id="co_civilite"
+                                name="civilite"
+                                value={dp.cerfa?.co_demandeur?.civilite || "M."}
+                                onChange={(e) => handleNestedChange(e as any, 'co_demandeur')}
+                            >
+                                <option value="M.">Un particulier - Monsieur</option>
+                                <option value="Mme">Un particulier - Madame</option>
+                                <option value="Société">Une personne morale (Société)</option>
+                            </select>
                         </div>
-                        <div className="form-group">
-                            <label htmlFor="co_prenom">Prénom du co-demandeur</label>
-                            <input
-                                type="text"
-                                id="co_prenom"
-                                name="prenom"
-                                value={dp.cerfa?.co_demandeur?.prenom || ""}
-                                onChange={(e) => handleNestedChange(e, 'co_demandeur')}
-                                placeholder="ex: Marie"
-                            />
+
+                        {dp.cerfa?.co_demandeur?.civilite !== "Société" && (
+                            <>
+                                <div className="form-group">
+                                    <label htmlFor="co_nom">Nom</label>
+                                    <input type="text" id="co_nom" name="nom" value={dp.cerfa?.co_demandeur?.nom || ""} onChange={(e) => handleNestedChange(e, 'co_demandeur')} placeholder="ex: Martin" />
+                                </div>
+                                <div className="form-group">
+                                    <label htmlFor="co_prenom">Prénom</label>
+                                    <input type="text" id="co_prenom" name="prenom" value={dp.cerfa?.co_demandeur?.prenom || ""} onChange={(e) => handleNestedChange(e, 'co_demandeur')} placeholder="ex: Marie" />
+                                </div>
+                                <div className="form-group">
+                                    <label htmlFor="co_date_naissance">Date de naissance</label>
+                                    <input type="text" placeholder="JJ/MM/AAAA" id="co_date_naissance" name="date_naissance" value={dp.cerfa?.co_demandeur?.date_naissance || ""} onChange={(e) => handleNestedChange(e, 'co_demandeur')} />
+                                </div>
+                                <div className="form-group">
+                                    <label htmlFor="co_lieu_naissance">Commune de naissance</label>
+                                    <input type="text" id="co_lieu_naissance" name="lieu_naissance" value={dp.cerfa?.co_demandeur?.lieu_naissance || ""} onChange={(e) => handleNestedChange(e, 'co_demandeur')} />
+                                </div>
+                                <div className="form-group">
+                                    <label htmlFor="co_departement_naissance">Département de naissance</label>
+                                    <input type="text" placeholder="ex: 75" id="co_departement_naissance" name="departement_naissance" value={dp.cerfa?.co_demandeur?.departement_naissance || ""} onChange={(e) => handleNestedChange(e, 'co_demandeur')} />
+                                </div>
+                                <div className="form-group">
+                                    <label htmlFor="co_pays_naissance">Pays de naissance</label>
+                                    <input type="text" id="co_pays_naissance" name="pays_naissance" value={dp.cerfa?.co_demandeur?.pays_naissance || ""} onChange={(e) => handleNestedChange(e, 'co_demandeur')} />
+                                </div>
+                            </>
+                        )}
+
+                        {dp.cerfa?.co_demandeur?.civilite === "Société" && (
+                            <>
+                                <div className="form-group">
+                                    <label htmlFor="co_nom_soc">Dénomination Sociale</label>
+                                    <input type="text" id="co_nom_soc" name="nom" value={dp.cerfa?.co_demandeur?.nom || ""} onChange={(e) => handleNestedChange(e, 'co_demandeur')} placeholder="Nom de la société" />
+                                </div>
+                                <div className="form-group">
+                                    <label htmlFor="co_type_societe">Type de société</label>
+                                    <input type="text" id="co_type_societe" name="type_societe" value={dp.cerfa?.co_demandeur?.type_societe || ""} onChange={(e) => handleNestedChange(e, 'co_demandeur')} placeholder="SA, SCI, SARL..." />
+                                </div>
+                                <div className="form-group form-group-full">
+                                    <strong style={{ display: 'block', marginBottom: '8px' }}>Représentant de la personne morale :</strong>
+                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '15px' }}>
+                                        <select name="representant_civilite" value={dp.cerfa?.co_demandeur?.representant_civilite || "Monsieur"} onChange={(e) => handleNestedChange(e as any, 'co_demandeur')}>
+                                            <option value="Monsieur">Monsieur</option>
+                                            <option value="Madame">Madame</option>
+                                        </select>
+                                        <input type="text" name="representant_nom" placeholder="Nom" value={dp.cerfa?.co_demandeur?.representant_nom || ""} onChange={(e) => handleNestedChange(e, 'co_demandeur')} />
+                                        <input type="text" name="representant_prenom" placeholder="Prénom" value={dp.cerfa?.co_demandeur?.representant_prenom || ""} onChange={(e) => handleNestedChange(e, 'co_demandeur')} />
+                                    </div>
+                                </div>
+                            </>
+                        )}
+
+                        <div className="form-group form-group-full">
+                            <label htmlFor="co_adresse">Adresse de correspondance</label>
+                            <input type="text" id="co_adresse" name="adresse" value={dp.cerfa?.co_demandeur?.adresse || ""} onChange={(e) => handleNestedChange(e, 'co_demandeur')} placeholder="ex: 12 Rue de la République" />
                         </div>
-                    </div>
-                    <div className="form-group">
-                        <label htmlFor="co_adresse">Adresse</label>
-                        <input
-                            type="text"
-                            id="co_adresse"
-                            name="adresse"
-                            value={dp.cerfa?.co_demandeur?.adresse || ""}
-                            onChange={(e) => handleNestedChange(e, 'co_demandeur')}
-                            placeholder="ex: 12 Rue de la République"
-                        />
-                    </div>
-                    <div className="form-group-row">
                         <div className="form-group">
                             <label htmlFor="co_cp">Code Postal</label>
-                            <input
-                                type="text"
-                                id="co_cp"
-                                name="code_postal"
-                                value={dp.cerfa?.co_demandeur?.code_postal || ""}
-                                onChange={(e) => handleNestedChange(e, 'co_demandeur')}
-                                placeholder="ex: 75001"
-                            />
+                            <input type="text" id="co_cp" name="code_postal" value={dp.cerfa?.co_demandeur?.code_postal || ""} onChange={(e) => handleNestedChange(e, 'co_demandeur')} placeholder="ex: 75001" />
                         </div>
                         <div className="form-group">
                             <label htmlFor="co_ville">Ville</label>
-                            <input
-                                type="text"
-                                id="co_ville"
-                                name="ville"
-                                value={dp.cerfa?.co_demandeur?.ville || ""}
-                                onChange={(e) => handleNestedChange(e, 'co_demandeur')}
-                                placeholder="ex: Paris"
-                            />
+                            <input type="text" id="co_ville" name="ville" value={dp.cerfa?.co_demandeur?.ville || ""} onChange={(e) => handleNestedChange(e, 'co_demandeur')} placeholder="ex: Paris" />
+                        </div>
+
+                        <div className="form-group form-group-full checkbox-group" style={{ marginTop: '10px' }}>
+                            <label className="checkbox-label" style={{ fontWeight: 500 }}>
+                                <input type="checkbox" name="est_etranger" checked={dp.cerfa?.co_demandeur?.est_etranger || false} onChange={(e) => handleNestedChange(e as any, 'co_demandeur')} />
+                                Le co-déclarant habite à l'étranger
+                            </label>
+                        </div>
+
+                        {dp.cerfa?.co_demandeur?.est_etranger && (
+                            <>
+                                <div className="form-group">
+                                    <label htmlFor="co_pays_adresse">Pays</label>
+                                    <input type="text" id="co_pays_adresse" name="pays_adresse" value={dp.cerfa?.co_demandeur?.pays_adresse || ""} onChange={(e) => handleNestedChange(e, 'co_demandeur')} />
+                                </div>
+                                <div className="form-group">
+                                    <label htmlFor="co_division_territoriale">Division territoriale</label>
+                                    <input type="text" id="co_division_territoriale" name="division_territoriale" value={dp.cerfa?.co_demandeur?.division_territoriale || ""} onChange={(e) => handleNestedChange(e, 'co_demandeur')} placeholder="État, Province..." />
+                                </div>
+                            </>
+                        )}
+
+                        <div className="form-group">
+                            <label htmlFor="co_telephone">Téléphone</label>
+                            <div style={{ display: 'flex', gap: '10px' }}>
+                                {dp.cerfa?.co_demandeur?.est_etranger && (
+                                    <input type="text" name="indicatif_telephone" placeholder="Indicatif" style={{ width: '100px' }} value={dp.cerfa?.co_demandeur?.indicatif_telephone || ""} onChange={(e) => handleNestedChange(e, 'co_demandeur')} />
+                                )}
+                                <input type="tel" id="co_telephone" name="telephone" style={{ flex: 1 }} value={dp.cerfa?.co_demandeur?.telephone || ""} onChange={(e) => handleNestedChange(e, 'co_demandeur')} />
+                            </div>
+                        </div>
+                        <div className="form-group">
+                            <label htmlFor="co_email">Adresse électronique</label>
+                            <input type="email" id="co_email" name="email" value={dp.cerfa?.co_demandeur?.email || ""} onChange={(e) => handleNestedChange(e, 'co_demandeur')} />
                         </div>
                     </div>
                 </div>

@@ -4,12 +4,28 @@ export interface Demandeur {
   prenom: string;
   date_naissance: string;
   lieu_naissance: string;
+  departement_naissance?: string;
+  pays_naissance?: string;
   adresse: string;
   code_postal: string;
   ville: string;
   telephone: string;
   email: string;
   qualite: string;
+
+  // Personne morale specifics
+  type_societe?: string;
+  representant_civilite?: string;
+  representant_nom?: string;
+  representant_prenom?: string;
+
+  // Foreign address specifics
+  est_etranger?: boolean;
+  pays_adresse?: string;
+  division_territoriale?: string;
+  indicatif_telephone?: string;
+
+  accepte_demarches_electroniques?: boolean;
 }
 
 export interface Terrain {
@@ -107,13 +123,28 @@ export interface CerfaInfos {
   siret?: string;
   nature_precisions?: string;
   co_demandeur?: {
+    civilite?: string;
     nom: string;
     prenom: string;
+    date_naissance?: string;
+    lieu_naissance?: string;
+    departement_naissance?: string;
+    pays_naissance?: string;
     adresse: string;
     code_postal: string;
     ville: string;
     telephone?: string;
     email?: string;
+
+    type_societe?: string;
+    representant_civilite?: string;
+    representant_nom?: string;
+    representant_prenom?: string;
+
+    est_etranger?: boolean;
+    pays_adresse?: string;
+    division_territoriale?: string;
+    indicatif_telephone?: string;
   };
   amenagements?: {
     piscine: boolean;
@@ -164,12 +195,16 @@ export function getInitialDP(): DeclarationPrealable {
       prenom: "Jean",
       date_naissance: "15/03/1985",
       lieu_naissance: "Paris",
+      departement_naissance: "75",
+      pays_naissance: "France",
       adresse: "12 Rue de la République",
       code_postal: "75001",
       ville: "Paris",
       telephone: "06 12 34 56 78",
       email: "jean.dupont@email.fr",
       qualite: "Propriétaire",
+      accepte_demarches_electroniques: true,
+      est_etranger: false
     },
     terrain: {
       adresse: "25 Chemin des Vignes",
@@ -275,11 +310,17 @@ export function getInitialDP(): DeclarationPrealable {
       siret: "12345678901234",
       nature_precisions: "Remplacement de menuiseries à l'identique",
       co_demandeur: {
+        civilite: "Mme",
         nom: "Martin",
         prenom: "Marie",
+        date_naissance: "20/05/1988",
+        lieu_naissance: "Lyon",
+        departement_naissance: "69",
+        pays_naissance: "France",
         adresse: "12 Rue de la République",
         code_postal: "75001",
-        ville: "Paris"
+        ville: "Paris",
+        est_etranger: false
       },
       amenagements: {
         piscine: false,

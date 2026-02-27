@@ -46,11 +46,29 @@ export async function generateCerfaPDF(dp: DeclarationPrealable): Promise<Uint8A
         checkField('D1F_femme', dp.demandeur.civilite === 'Mme' || dp.demandeur.civilite === 'Mlle');
         setTextField('D1A_naissance', dp.demandeur.date_naissance);
         setTextField('D1C_commune', dp.demandeur.lieu_naissance);
+        setTextField('D1D_dept', dp.demandeur.departement_naissance);
+        setTextField('D1E_pays', dp.demandeur.pays_naissance);
+
+        // Personne morale
+        setTextField('D2J_type', dp.demandeur.type_societe);
+        checkField('D2F_madame', dp.demandeur.representant_civilite === 'Madame');
+        checkField('D2H_monsieur', dp.demandeur.representant_civilite === 'Monsieur');
+        setTextField('D2N_nom', dp.demandeur.representant_nom);
+        setTextField('D2P_prenom', dp.demandeur.representant_prenom);
+
         setTextField('D3V_voie', dp.demandeur.adresse);
         setTextField('D3C_code', dp.demandeur.code_postal);
         setTextField('D3L_localite', dp.demandeur.ville);
+
+        // Etranger
+        setTextField('D3P_pays', dp.demandeur.pays_adresse);
+        setTextField('D3D_division', dp.demandeur.division_territoriale);
+        setTextField('D3K_indicatif', dp.demandeur.indicatif_telephone);
+
         setTextField('D3T_telephone', dp.demandeur.telephone);
         setTextField('D5GE1_email', dp.demandeur.email);
+
+        checkField('D5A_acceptation', dp.demandeur.accepte_demarches_electroniques || false);
     }
 
     // Map Terrain
@@ -89,11 +107,31 @@ export async function generateCerfaPDF(dp: DeclarationPrealable): Promise<Uint8A
 
         // Co-demandeur
         if (dp.cerfa.co_demandeur) {
+            checkField('D4F_femme', dp.cerfa.co_demandeur.civilite === 'Mme' || dp.cerfa.co_demandeur.civilite === 'Mlle');
+            checkField('D4H_homme', dp.cerfa.co_demandeur.civilite === 'M.');
             setTextField('D4N_nom', dp.cerfa.co_demandeur.nom);
             setTextField('D4P_prenom', dp.cerfa.co_demandeur.prenom);
+
+            // Société co-demandeur
+            if (dp.cerfa.co_demandeur.civilite === 'Société') {
+                setTextField('D4MD1_denomination', dp.cerfa.co_demandeur.nom);
+                setTextField('D4MT1_typesociete', dp.cerfa.co_demandeur.type_societe);
+            }
+            // Représentant co-demandeur
+            checkField('D4MC1_madame', dp.cerfa.co_demandeur.representant_civilite === 'Madame');
+            checkField('D4MC2_monsieur', dp.cerfa.co_demandeur.representant_civilite === 'Monsieur');
+            setTextField('D4MN1_nom', dp.cerfa.co_demandeur.representant_nom);
+            setTextField('D4MP1_prenom', dp.cerfa.co_demandeur.representant_prenom);
+
             setTextField('D4V_voie', dp.cerfa.co_demandeur.adresse);
             setTextField('D4C_code', dp.cerfa.co_demandeur.code_postal);
             setTextField('D4L_localite', dp.cerfa.co_demandeur.ville);
+
+            // Etranger co-demandeur
+            setTextField('D4E_pays', dp.cerfa.co_demandeur.pays_adresse);
+            setTextField('D4D_division', dp.cerfa.co_demandeur.division_territoriale);
+            setTextField('D4I_indicatif', dp.cerfa.co_demandeur.indicatif_telephone);
+
             setTextField('D4T_telephone', dp.cerfa.co_demandeur.telephone);
             setTextField('D4GE1_email', dp.cerfa.co_demandeur.email);
         }
