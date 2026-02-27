@@ -86,6 +86,41 @@ export async function generateCerfaPDF(dp: DeclarationPrealable): Promise<Uint8A
         setTextField('D2S_SIRET', dp.cerfa.siret);
         setTextField('D4MS1_siret', dp.cerfa.siret);
         setTextField('X1P_precisions', dp.cerfa.nature_precisions);
+
+        // Co-demandeur
+        if (dp.cerfa.co_demandeur) {
+            setTextField('D4N_nom', dp.cerfa.co_demandeur.nom);
+            setTextField('D4P_prenom', dp.cerfa.co_demandeur.prenom);
+            setTextField('D4V_voie', dp.cerfa.co_demandeur.adresse);
+            setTextField('D4C_code', dp.cerfa.co_demandeur.code_postal);
+            setTextField('D4L_localite', dp.cerfa.co_demandeur.ville);
+            setTextField('D4T_telephone', dp.cerfa.co_demandeur.telephone);
+            setTextField('D4GE1_email', dp.cerfa.co_demandeur.email);
+        }
+
+        // Aménagements
+        if (dp.cerfa.amenagements) {
+            checkField('C5ZE1_piscine', dp.cerfa.amenagements.piscine);
+            checkField('C5ZE2_garage', dp.cerfa.amenagements.garage);
+            checkField('C5ZE3_veranda', dp.cerfa.amenagements.veranda);
+            checkField('C5ZE4_abri', dp.cerfa.amenagements.abri);
+            checkField('C5ZK1_extension', dp.cerfa.amenagements.extension);
+            checkField('C5ZK2_surelevation', dp.cerfa.amenagements.surelevation);
+            checkField('C2ZC3_cloture', dp.cerfa.amenagements.cloture);
+        }
+
+        // Fiscalité
+        if (dp.cerfa.fiscalite) {
+            setTextField('T5ZA1', dp.cerfa.fiscalite.surface_taxable_existante.toString());
+            setTextField('T5ZB1', dp.cerfa.fiscalite.surface_taxable_creee.toString());
+            setTextField('T5ZC1', dp.cerfa.fiscalite.stationnement_cree.toString());
+        }
+
+        // Architecte
+        if (dp.cerfa.architecte && dp.cerfa.architecte.recours) {
+            setTextField('R2N_deposant', dp.cerfa.architecte.nom);
+            setTextField('R2A_numero', dp.cerfa.architecte.numero);
+        }
     } else {
         setTextField('E1D_date', dp.date_creation || new Date().toLocaleDateString('fr-FR'));
     }

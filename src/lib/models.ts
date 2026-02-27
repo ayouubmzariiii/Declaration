@@ -106,6 +106,34 @@ export interface CerfaInfos {
   denomination_sociale?: string;
   siret?: string;
   nature_precisions?: string;
+  co_demandeur?: {
+    nom: string;
+    prenom: string;
+    adresse: string;
+    code_postal: string;
+    ville: string;
+    telephone?: string;
+    email?: string;
+  };
+  amenagements?: {
+    piscine: boolean;
+    garage: boolean;
+    veranda: boolean;
+    abri: boolean;
+    extension: boolean;
+    surelevation: boolean;
+    cloture: boolean;
+  };
+  fiscalite?: {
+    surface_taxable_existante: number;
+    surface_taxable_creee: number;
+    stationnement_cree: number;
+  };
+  architecte?: {
+    recours: boolean;
+    nom: string;
+    numero: string;
+  };
 }
 
 export interface DeclarationPrealable {
@@ -246,6 +274,32 @@ export function getInitialDP(): DeclarationPrealable {
       denomination_sociale: "SOCIETE DUPONT",
       siret: "12345678901234",
       nature_precisions: "Remplacement de menuiseries à l'identique",
+      co_demandeur: {
+        nom: "Martin",
+        prenom: "Marie",
+        adresse: "12 Rue de la République",
+        code_postal: "75001",
+        ville: "Paris"
+      },
+      amenagements: {
+        piscine: false,
+        garage: false,
+        veranda: false,
+        abri: false,
+        extension: false,
+        surelevation: false,
+        cloture: true
+      },
+      fiscalite: {
+        surface_taxable_existante: 95,
+        surface_taxable_creee: 0,
+        stationnement_cree: 0
+      },
+      architecte: {
+        recours: false,
+        nom: "",
+        numero: ""
+      }
     }
   };
 }
