@@ -77,14 +77,17 @@ export default function Step2() {
                     </p>
                     <div className="form-grid">
                         <div className="form-group">
-                            <label htmlFor="surface_plancher_existante">Surface de plancher existante</label>
+                            <label htmlFor="surface_plancher_existante">Surface de plancher existante (m²)</label>
                             <input type="number" step="0.1" name="surface_plancher_existante" id="surface_plancher_existante" value={dp.travaux.surface_plancher_existante} onChange={handleNumberChange} />
                         </div>
                         <div className="form-group">
-                            <label htmlFor="surface_plancher_creee">Surface de plancher CRÉÉE</label>
+                            <label htmlFor="surface_plancher_creee">Surface de plancher créée (m²)</label>
                             <input type="number" step="0.1" name="surface_plancher_creee" id="surface_plancher_creee" value={dp.travaux.surface_plancher_creee} onChange={handleNumberChange} />
                         </div>
-
+                        <div className="form-group">
+                            <label htmlFor="surface_plancher_supprimee">Surface de plancher supprimée (m²)</label>
+                            <input type="number" step="0.1" name="surface_plancher_supprimee" id="surface_plancher_supprimee" value={dp.travaux.surface_plancher_supprimee || ""} onChange={handleNumberChange} />
+                        </div>
                         <div className="form-group">
                             <label htmlFor="emprise_au_sol_existante">Emprise au sol existante</label>
                             <input type="number" step="0.1" name="emprise_au_sol_existante" id="emprise_au_sol_existante" value={dp.travaux.emprise_au_sol_existante} onChange={handleNumberChange} />

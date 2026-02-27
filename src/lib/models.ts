@@ -7,6 +7,9 @@ export interface Demandeur {
   departement_naissance?: string;
   pays_naissance?: string;
   adresse: string;
+  lieu_dit?: string;
+  boite_postale?: string;
+  cedex?: string;
   code_postal: string;
   ville: string;
   telephone: string;
@@ -30,11 +33,12 @@ export interface Demandeur {
 
 export interface Terrain {
   adresse: string;
-  lieu_dit: string;
+  lieu_dit?: string;
   code_postal: string;
   commune: string;
   section_cadastrale: string;
   numero_parcelle: string;
+  prefixe?: string;
   superficie_terrain: number;
   zone_plu: string;
   est_lotissement: boolean;
@@ -48,6 +52,7 @@ export interface TravauxDetail {
   description_courte: string;
   surface_plancher_existante: number;
   surface_plancher_creee: number;
+  surface_plancher_supprimee?: number;
   emprise_au_sol_existante: number;
   emprise_au_sol_creee: number;
   hauteur_existante: number;
@@ -131,6 +136,9 @@ export interface CerfaInfos {
     departement_naissance?: string;
     pays_naissance?: string;
     adresse: string;
+    lieu_dit?: string;
+    boite_postale?: string;
+    cedex?: string;
     code_postal: string;
     ville: string;
     telephone?: string;
@@ -165,6 +173,15 @@ export interface CerfaInfos {
     nom: string;
     numero: string;
   };
+  legislation?: {
+    derogation_innovation?: boolean;
+    accord_abf?: boolean;
+    autre_legislation?: boolean;
+    raccordement_elec?: boolean;
+    patrimoine_remarquable?: boolean;
+    abords_historiques?: boolean;
+  };
+  signature_image?: string; // Base64 of the signature image
 }
 
 export interface DeclarationPrealable {

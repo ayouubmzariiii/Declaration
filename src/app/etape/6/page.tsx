@@ -71,10 +71,10 @@ export default function Step6() {
         }));
     };
 
-    // Handler for nested objects (co_demandeur, fiscalite, architecte)
+    // Handler for nested objects (co_demandeur, fiscalite, architecte, legislation)
     const handleNestedChange = (
         e: React.ChangeEvent<HTMLInputElement>,
-        section: 'co_demandeur' | 'fiscalite' | 'architecte'
+        section: 'co_demandeur' | 'fiscalite' | 'architecte' | 'legislation'
     ) => {
         const { name, value, type, checked } = e.target;
 
@@ -206,16 +206,27 @@ export default function Step6() {
                         )}
 
                         <div className="form-group form-group-full">
-                            <label htmlFor="co_adresse">Adresse de correspondance</label>
+                            <label htmlFor="co_adresse">Adresse de correspondance (N° et Voie)</label>
                             <input type="text" id="co_adresse" name="adresse" value={dp.cerfa?.co_demandeur?.adresse || ""} onChange={(e) => handleNestedChange(e, 'co_demandeur')} placeholder="ex: 12 Rue de la République" />
+                        </div>
+                        <div className="form-group">
+                            <label htmlFor="co_lieu_dit">Lieu-dit</label>
+                            <input type="text" name="lieu_dit" id="co_lieu_dit" value={dp.cerfa?.co_demandeur?.lieu_dit || ""} onChange={(e) => handleNestedChange(e, 'co_demandeur')} />
+                        </div>
+                        <div className="form-group">
+                            <label htmlFor="co_boite_postale">Boîte Postale (BP)</label>
+                            <input type="text" name="boite_postale" id="co_boite_postale" value={dp.cerfa?.co_demandeur?.boite_postale || ""} onChange={(e) => handleNestedChange(e, 'co_demandeur')} />
                         </div>
                         <div className="form-group">
                             <label htmlFor="co_cp">Code Postal</label>
                             <input type="text" id="co_cp" name="code_postal" value={dp.cerfa?.co_demandeur?.code_postal || ""} onChange={(e) => handleNestedChange(e, 'co_demandeur')} placeholder="ex: 75001" />
                         </div>
                         <div className="form-group">
-                            <label htmlFor="co_ville">Ville</label>
-                            <input type="text" id="co_ville" name="ville" value={dp.cerfa?.co_demandeur?.ville || ""} onChange={(e) => handleNestedChange(e, 'co_demandeur')} placeholder="ex: Paris" />
+                            <label htmlFor="co_ville">Localité / Ville</label>
+                            <div style={{ display: 'flex', gap: '10px' }}>
+                                <input type="text" id="co_ville" name="ville" style={{ flex: 2 }} value={dp.cerfa?.co_demandeur?.ville || ""} onChange={(e) => handleNestedChange(e, 'co_demandeur')} placeholder="ex: Paris" />
+                                <input type="text" name="cedex" placeholder="CEDEX" style={{ flex: 1 }} value={dp.cerfa?.co_demandeur?.cedex || ""} onChange={(e) => handleNestedChange(e, 'co_demandeur')} />
+                            </div>
                         </div>
 
                         <div className="form-group form-group-full checkbox-group" style={{ marginTop: '10px' }}>
@@ -420,6 +431,38 @@ export default function Step6() {
                     )}
                 </div>
 
+                {/* --- LEGISLATION CONNEXE --- */}
+                <div className="form-section">
+                    <h3 className="form-section-title">Informations pour l'application d'une législation connexe</h3>
+                    <p className="form-description" style={{ marginBottom: "15px" }}>Indiquez si votre projet est concerné par l'un de ces cas :</p>
+                    <div className="checkbox-grid" style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '10px' }}>
+                        <div className="checkbox-item" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <input type="checkbox" id="leg_derogation" name="derogation_innovation" checked={dp.cerfa?.legislation?.derogation_innovation || false} onChange={e => handleNestedChange(e as any, 'legislation')} />
+                            <label htmlFor="leg_derogation" style={{ margin: 0, fontWeight: 'normal' }}>Dérogation pour expérimentation ou innovation</label>
+                        </div>
+                        <div className="checkbox-item" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <input type="checkbox" id="leg_abf" name="accord_abf" checked={dp.cerfa?.legislation?.accord_abf || false} onChange={e => handleNestedChange(e as any, 'legislation')} />
+                            <label htmlFor="leg_abf" style={{ margin: 0, fontWeight: 'normal' }}>Accord préalable de l'Architecte des Bâtiments de France (ABF) requis</label>
+                        </div>
+                        <div className="checkbox-item" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <input type="checkbox" id="leg_autre" name="autre_legislation" checked={dp.cerfa?.legislation?.autre_legislation || false} onChange={e => handleNestedChange(e as any, 'legislation')} />
+                            <label htmlFor="leg_autre" style={{ margin: 0, fontWeight: 'normal' }}>Le projet fait l'objet d'une autre législation (Code Rural, etc.)</label>
+                        </div>
+                        <div className="checkbox-item" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <input type="checkbox" id="leg_raccordement" name="raccordement_elec" checked={dp.cerfa?.legislation?.raccordement_elec || false} onChange={e => handleNestedChange(e as any, 'legislation')} />
+                            <label htmlFor="leg_raccordement" style={{ margin: 0, fontWeight: 'normal' }}>Demande de dérogation au raccordement électrique souterrain</label>
+                        </div>
+                        <div className="checkbox-item" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <input type="checkbox" id="leg_remarquable" name="patrimoine_remarquable" checked={dp.cerfa?.legislation?.patrimoine_remarquable || false} onChange={e => handleNestedChange(e as any, 'legislation')} />
+                            <label htmlFor="leg_remarquable" style={{ margin: 0, fontWeight: 'normal' }}>Projet situé dans un Site Patrimonial Remarquable</label>
+                        </div>
+                        <div className="checkbox-item" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <input type="checkbox" id="leg_historiques" name="abords_historiques" checked={dp.cerfa?.legislation?.abords_historiques || false} onChange={e => handleNestedChange(e as any, 'legislation')} />
+                            <label htmlFor="leg_historiques" style={{ margin: 0, fontWeight: 'normal' }}>Projet situé aux abords de monuments historiques</label>
+                        </div>
+                    </div>
+                </div>
+
                 {/* --- SIGNATURE (Original) --- */}
                 <div className="form-section">
                     <h3 className="form-section-title">Signature</h3>
@@ -454,6 +497,35 @@ export default function Step6() {
                                 }}
                             />
                         </div>
+                    </div>
+                    <div className="form-group" style={{ marginTop: '15px' }}>
+                        <label htmlFor="signature_image">Importer votre signature (Optionnel)</label>
+                        <input
+                            type="file"
+                            id="signature_image"
+                            accept="image/png, image/jpeg"
+                            onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                if (file) {
+                                    const reader = new FileReader();
+                                    reader.onload = (event) => {
+                                        const base64 = event.target?.result as string;
+                                        updateDP(prev => ({
+                                            ...prev,
+                                            cerfa: {
+                                                ...prev.cerfa,
+                                                signature_image: base64
+                                            }
+                                        }));
+                                    };
+                                    reader.readAsDataURL(file);
+                                }
+                            }}
+                        />
+                        {dp.cerfa?.signature_image && (
+                            <img src={dp.cerfa.signature_image} alt="Signature Uploaded" style={{ marginTop: '10px', maxHeight: '60px', borderRadius: '4px', border: '1px solid #ccc' }} />
+                        )}
+                        <p className="form-description" style={{ marginTop: '5px' }}>Si vous ne fournissez pas de signature, vous devrez l'imprimer et la signer manuellement.</p>
                     </div>
                 </div>
 

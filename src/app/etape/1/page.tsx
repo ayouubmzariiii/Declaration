@@ -158,16 +158,27 @@ export default function Step1() {
                         )}
 
                         <div className="form-group form-group-full">
-                            <label htmlFor="adresse_demandeur">Adresse de correspondance (N° et Voie, Lieu-dit...)</label>
+                            <label htmlFor="adresse_demandeur">Adresse de correspondance (N° et Voie)</label>
                             <input type="text" name="adresse" id="adresse_demandeur" required value={dp.demandeur.adresse} onChange={handleDemandeurChange} />
+                        </div>
+                        <div className="form-group">
+                            <label htmlFor="lieu_dit_demandeur">Lieu-dit</label>
+                            <input type="text" name="lieu_dit" id="lieu_dit_demandeur" value={dp.demandeur.lieu_dit || ""} onChange={handleDemandeurChange} />
+                        </div>
+                        <div className="form-group">
+                            <label htmlFor="boite_postale">Boîte Postale (BP)</label>
+                            <input type="text" name="boite_postale" id="boite_postale" value={dp.demandeur.boite_postale || ""} onChange={handleDemandeurChange} />
+                        </div>
+                        <div className="form-group">
+                            <label htmlFor="cedex">Localité / Ville</label>
+                            <div style={{ display: 'flex', gap: '10px' }}>
+                                <input type="text" name="ville" id="ville" style={{ flex: 2 }} required value={dp.demandeur.ville} onChange={handleDemandeurChange} />
+                                <input type="text" name="cedex" placeholder="CEDEX" style={{ flex: 1 }} value={dp.demandeur.cedex || ""} onChange={handleDemandeurChange} />
+                            </div>
                         </div>
                         <div className="form-group">
                             <label htmlFor="code_postal">Code Postal</label>
                             <input type="text" name="code_postal" id="code_postal" required value={dp.demandeur.code_postal} onChange={handleDemandeurChange} />
-                        </div>
-                        <div className="form-group">
-                            <label htmlFor="ville">Localité / Ville</label>
-                            <input type="text" name="ville" id="ville" required value={dp.demandeur.ville} onChange={handleDemandeurChange} />
                         </div>
 
                         <div className="form-group form-group-full checkbox-group" style={{ marginTop: '10px' }}>
@@ -241,8 +252,15 @@ export default function Step1() {
 
                     <div className="form-grid">
                         <div className="form-group form-group-full">
-                            <label htmlFor="adresse_terrain">Adresse du terrain</label>
-                            <input type="text" name="adresse" id="adresse_terrain" required value={dp.terrain.adresse} onChange={handleTerrainChange} />
+                            <label htmlFor="adresse_terrain">Adresse du terrain (N° et Voie)</label>
+                            <div style={{ display: 'flex', gap: '10px' }}>
+                                <input type="text" name="prefixe" placeholder="Préfixe (bis, ter...)" style={{ width: '150px' }} value={dp.terrain.prefixe || ""} onChange={handleTerrainChange} />
+                                <input type="text" name="adresse" id="adresse_terrain" style={{ flex: 1 }} required value={dp.terrain.adresse} onChange={handleTerrainChange} />
+                            </div>
+                        </div>
+                        <div className="form-group">
+                            <label htmlFor="lieu_dit_terrain">Lieu-dit</label>
+                            <input type="text" name="lieu_dit" id="lieu_dit_terrain" value={dp.terrain.lieu_dit || ""} onChange={handleTerrainChange} />
                         </div>
                         <div className="form-group">
                             <label htmlFor="code_postal_terrain">Code postal</label>
